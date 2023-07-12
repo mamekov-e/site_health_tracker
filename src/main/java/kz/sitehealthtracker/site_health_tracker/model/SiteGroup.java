@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "groups")
+@Table(name = "site_groups")
 @Data
 @NoArgsConstructor
-public class Group extends BaseEntity<Long> {
+public class SiteGroup extends BaseEntity<Long> {
     @Column(name = "name")
     private String name;
     @Column(name = "description")
@@ -18,7 +18,7 @@ public class Group extends BaseEntity<Long> {
     @Column(name = "status")
     private String status;
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "site_group",
+    @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))
     private List<Site> sites;

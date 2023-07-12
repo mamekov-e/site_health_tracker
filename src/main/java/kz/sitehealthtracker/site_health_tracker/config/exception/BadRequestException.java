@@ -8,7 +8,7 @@ public class BadRequestException extends BaseException {
         super(HttpStatus.BAD_REQUEST, description);
     }
 
-    public static BadRequestException entityAlreadyExist(String entityName, String fieldValue) {
-        return new BadRequestException(String.format("entity-%s-with-`%s`-already-exist", entityName, fieldValue));
+    public static BadRequestException entityWithFieldValueAlreadyExist(String entityName, String fieldValue) {
+        return new BadRequestException(String.format("entity-%s-with-field-value-`%s`-already-exist", entityName, fieldValue));
     }
 }

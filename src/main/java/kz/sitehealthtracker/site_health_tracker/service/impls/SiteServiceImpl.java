@@ -37,7 +37,7 @@ public class SiteServiceImpl implements SiteService {
     public Site updateSite(Site updatedSite) {
         boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
         if (siteUpdatedUrlAlreadyExist) {
-            throw BadRequestException.entityAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
+            throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
         }
 
         return siteRepository.save(updatedSite);
@@ -47,7 +47,7 @@ public class SiteServiceImpl implements SiteService {
     public void addSite(Site site) {
         boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIsIgnoreCase(site.getUrl());
         if (siteUrlAlreadyExist) {
-            throw BadRequestException.entityAlreadyExist(Site.class.getSimpleName(), site.getUrl());
+            throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), site.getUrl());
         }
 
         siteRepository.save(site);

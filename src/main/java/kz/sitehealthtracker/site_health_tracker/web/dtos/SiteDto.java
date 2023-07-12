@@ -1,5 +1,6 @@
 package kz.sitehealthtracker.site_health_tracker.web.dtos;
 
+import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,5 @@ public class SiteDto {
     private String name;
     private String description;
     private String url;
-    private String status;
+    private SiteStatus status;
 }
