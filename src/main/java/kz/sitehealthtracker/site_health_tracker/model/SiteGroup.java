@@ -1,8 +1,11 @@
 package kz.sitehealthtracker.site_health_tracker.model;
 
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.util.List;
 
@@ -15,8 +18,10 @@ public class SiteGroup extends BaseEntity<Long> {
     private String name;
     @Column(name = "description")
     private String description;
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    @Type(PostgreSQLEnumType.class)
+    private SiteGroupStatus status;
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
