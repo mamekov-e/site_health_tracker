@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,9 +23,19 @@ public class SiteGroup extends BaseEntity<Long> {
     @Column(name = "status")
     @Type(PostgreSQLEnumType.class)
     private SiteGroupStatus status;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))
-    private List<Site> sites;
+    private List<Site> sites = new ArrayList<>();
+
+    public void addSites(List<Site> sitesList) {
+        this.sites.addAll(sitesList);
+        sitesList.forEach(site -> site.getGroups().add(this));
+    }
+
+    public void removeSites(List<Site> sitesOfGroup) {
+        this.sites.removeAll(sitesOfGroup);
+        sitesOfGroup.forEach(site -> site.getGroups().remove(this));
+    }
 }
