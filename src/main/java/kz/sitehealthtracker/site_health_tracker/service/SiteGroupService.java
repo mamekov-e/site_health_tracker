@@ -4,17 +4,18 @@ import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 
 import java.util.List;
+import java.util.Set;
 
 public interface SiteGroupService {
     List<SiteGroup> getAllSiteGroups();
 
-    List<Site> getAllGroupSitesById(Long id);
+    Set<Site> getAllGroupSitesById(Long id);
 
     SiteGroup getSiteGroupById(Long id);
 
     void addSiteGroup(SiteGroup siteGroup);
 
-    void addSitesToGroupById(List<Site> siteList, Long id);
+    void addSitesToGroupById(Set<Site> siteList, Long id);
 
     SiteGroup updateSiteGroup(SiteGroup siteGroup);
 

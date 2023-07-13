@@ -36,7 +36,7 @@ public class SiteController {
     public ResponseEntity<Long> addSite(@RequestBody SiteDto siteDto) {
         Site site = ConverterUtil.convert(siteDto, Site.class);
         siteService.addSite(site);
-        return ResponseEntity.ok(site.getId());
+        return new ResponseEntity<>(site.getId(),HttpStatus.CREATED);
     }
 
     @PutMapping

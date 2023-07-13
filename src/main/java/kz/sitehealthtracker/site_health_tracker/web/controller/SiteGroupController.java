@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/site-groups")
@@ -35,11 +37,11 @@ public class SiteGroupController {
     }
 
     @GetMapping("{groupId}/sites")
-    public ResponseEntity<List<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
-        List<Site> groupSitesList = siteGroupService.getAllGroupSitesById(id);
-        List<SiteDto> groupSitesDtoList = groupSitesList.stream()
+    public ResponseEntity<Set<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
+        Set<Site> groupSitesList = siteGroupService.getAllGroupSitesById(id);
+        Set<SiteDto> groupSitesDtoList = groupSitesList.stream()
                 .map(site -> ConverterUtil.convert(site, SiteDto.class))
-                .toList();
+                .collect(Collectors.toSet());
         return ResponseEntity.ok(groupSitesDtoList);
     }
 
@@ -47,14 +49,14 @@ public class SiteGroupController {
     public ResponseEntity<Long> addSiteGroup(@RequestBody SiteGroupDto siteGroupDto) {
         SiteGroup siteGroup = ConverterUtil.convert(siteGroupDto, SiteGroup.class);
         siteGroupService.addSiteGroup(siteGroup);
-        return ResponseEntity.ok(siteGroup.getId());
+        return new ResponseEntity<>(siteGroup.getId(), HttpStatus.CREATED);
     }
 
     @PostMapping("/{groupId}/sites")
     public ResponseEntity<Void> addSitesToGroup(@RequestBody List<SiteDto> sites, @PathVariable("groupId") Long id) {
-        List<Site> groupSitesList = sites.stream()
+        Set<Site> groupSitesList = sites.stream()
                 .map(siteDto -> ConverterUtil.convert(siteDto, Site.class))
-                .toList();
+                .collect(Collectors.toSet());
         siteGroupService.addSitesToGroupById(groupSitesList, id);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

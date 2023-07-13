@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SiteGroupServiceImpl implements SiteGroupService {
@@ -31,7 +32,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
-    public List<Site> getAllGroupSitesById(Long id) {
+    public Set<Site> getAllGroupSitesById(Long id) {
         SiteGroup siteGroup = getSiteGroupById(id);
 
         return siteGroup.getSites();
@@ -50,7 +51,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
-    public void addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
+    public void addSitesToGroupById(Set<Site> sitesOfGroup, Long id) {
         SiteGroup siteGroup = getSiteGroupById(id);
 
         siteGroup.addSites(sitesOfGroup);
@@ -75,9 +76,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     protected void updateGroupStatus(SiteGroup siteGroup) {
-        List<Site> sitesOfGroup = siteGroup.getSites();
+        Set<Site> sitesOfGroup = siteGroup.getSites();
         SiteGroupStatus siteGroupStatus = null;
-        if (sitesOfGroup == null) {
+        if (sitesOfGroup.isEmpty()) {
             if (siteGroup.getStatus() == null) {
                 siteGroupStatus = SiteGroupStatus.NO_SITES;
             }

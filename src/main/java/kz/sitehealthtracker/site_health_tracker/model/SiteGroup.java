@@ -7,8 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "site_groups")
@@ -27,15 +29,35 @@ public class SiteGroup extends BaseEntity<Long> {
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))
-    private List<Site> sites = new ArrayList<>();
+    private Set<Site> sites = new HashSet<>();
 
-    public void addSites(List<Site> sitesList) {
+    public void addSites(Set<Site> sitesList) {
         this.sites.addAll(sitesList);
-        sitesList.forEach(site -> site.getGroups().add(this));
     }
 
     public void removeSites(List<Site> sitesOfGroup) {
-        this.sites.removeAll(sitesOfGroup);
+        sitesOfGroup.forEach(this.sites::remove);
         sitesOfGroup.forEach(site -> site.getGroups().remove(this));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SiteGroup siteGroup)) return false;
+        return getName().equals(siteGroup.getName()) && Objects.equals(getDescription(), siteGroup.getDescription()) && getStatus() == siteGroup.getStatus();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getDescription(), getStatus());
+    }
+
+    @Override
+    public String toString() {
+        return "SiteGroup{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
     }
 }
