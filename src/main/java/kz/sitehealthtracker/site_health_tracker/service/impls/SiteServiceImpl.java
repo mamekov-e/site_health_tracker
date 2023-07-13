@@ -35,6 +35,8 @@ public class SiteServiceImpl implements SiteService {
 
     @Override
     public Site updateSite(Site updatedSite) {
+        checkIfSiteExistById(updatedSite.getId());
+
         boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
         if (siteUpdatedUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
@@ -54,14 +56,17 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public boolean deleteSiteById(Long id) {
-        Optional<Site> siteOptional = siteRepository.findById(id);
-        if (siteOptional.isEmpty()) {
-            throw NotFoundException.entityNotFoundById(Site.class.getSimpleName(), id);
-        }
+    public void deleteSiteById(Long id) {
+        checkIfSiteExistById(id);
 
         siteRepository.deleteById(id);
-        return true;
+    }
+
+    private void checkIfSiteExistById(Long id) {
+        boolean siteGroupExist = siteRepository.existsById(id);
+        if (!siteGroupExist) {
+            throw NotFoundException.entityNotFoundById(Site.class.getSimpleName(), id);
+        }
     }
 
 }

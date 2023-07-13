@@ -12,14 +12,14 @@ public interface SiteGroupService {
 
     SiteGroup getSiteGroupById(Long id);
 
-    void addSiteGroup(SiteGroup dtoToSite);
+    void addSiteGroup(SiteGroup siteGroup);
 
-    void addSitesToGroup(List<Site> dtoToSiteList, Long groupId);
+    void addSitesToGroupById(List<Site> siteList, Long id);
 
-    SiteGroup updateSiteGroup(SiteGroup dtoToSite);
+    SiteGroup updateSiteGroup(SiteGroup siteGroup);
 
     void deleteSiteGroupById(Long id);
 
-    void deleteSitesFromGroup(List<Site> dtoToSiteList, Long groupId);
+    void deleteSitesFromGroupById(List<Site> siteList, Long id);
 
 }

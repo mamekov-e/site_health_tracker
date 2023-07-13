@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SiteRepository extends JpaRepository<Site, Long> {
     boolean existsSitesByUrlIsIgnoreCase(String url);
 
-    boolean  existsSitesByUrlAndIdIsNot(String url, Long id);
+    boolean existsSitesByUrlAndIdIsNot(String url, Long id);
 }

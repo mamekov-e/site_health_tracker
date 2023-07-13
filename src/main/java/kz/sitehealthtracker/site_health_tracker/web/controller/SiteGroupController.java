@@ -28,55 +28,55 @@ public class SiteGroupController {
         return ResponseEntity.ok(siteGroupDtoList);
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<SiteGroupDto> getSiteGroupById(@PathVariable("id") Long id) {
+    @GetMapping("{groupId}")
+    public ResponseEntity<SiteGroupDto> getSiteGroupById(@PathVariable("groupId") Long id) {
         SiteGroup siteGroup = siteGroupService.getSiteGroupById(id);
         return ResponseEntity.ok(convertToDto(siteGroup));
     }
 
-    @GetMapping("{id}/sites")
-    public ResponseEntity<List<SiteDto>> getAllGroupSitesById(@PathVariable("id") Long id) {
-        List<Site> groupSites = siteGroupService.getAllGroupSitesById(id);
-        List<SiteDto> groupSitesDtoList = groupSites.stream()
+    @GetMapping("{groupId}/sites")
+    public ResponseEntity<List<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
+        List<Site> groupSitesList = siteGroupService.getAllGroupSitesById(id);
+        List<SiteDto> groupSitesDtoList = groupSitesList.stream()
                 .map(site -> modelMapper.map(site, SiteDto.class))
                 .toList();
         return ResponseEntity.ok(groupSitesDtoList);
     }
 
     @PostMapping
-    public ResponseEntity<Long> addSiteGroup(@RequestBody SiteGroupDto siteGroup) {
-        SiteGroup dtoToSiteGroup = convertToEntity(siteGroup);
-        siteGroupService.addSiteGroup(dtoToSiteGroup);
-        return ResponseEntity.ok(dtoToSiteGroup.getId());
+    public ResponseEntity<Long> addSiteGroup(@RequestBody SiteGroupDto siteGroupDto) {
+        SiteGroup siteGroup = convertToEntity(siteGroupDto);
+        siteGroupService.addSiteGroup(siteGroup);
+        return ResponseEntity.ok(siteGroup.getId());
     }
 
-    @PostMapping("/{id}/sites")
-    public ResponseEntity<Void> addSitesToGroup(@RequestBody List<SiteDto> sites, @PathVariable("id") Long groupId) {
-        List<Site> dtoToSiteList = sites.stream()
+    @PostMapping("/{groupId}/sites")
+    public ResponseEntity<Void> addSitesToGroup(@RequestBody List<SiteDto> sites, @PathVariable("groupId") Long id) {
+        List<Site> groupSitesList = sites.stream()
                 .map(siteDto -> modelMapper.map(siteDto, Site.class))
                 .toList();
-        siteGroupService.addSitesToGroup(dtoToSiteList, groupId);
+        siteGroupService.addSitesToGroupById(groupSitesList, id);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<SiteGroupDto> updateSiteGroup(@RequestBody SiteGroupDto siteGroup) {
-        SiteGroup dtoToSiteGroup = convertToEntity(siteGroup);
-        return ResponseEntity.ok(convertToDto(siteGroupService.updateSiteGroup(dtoToSiteGroup)));
+    public ResponseEntity<SiteGroupDto> updateSiteGroup(@RequestBody SiteGroupDto siteGroupDto) {
+        SiteGroup siteGroup = convertToEntity(siteGroupDto);
+        return ResponseEntity.ok(convertToDto(siteGroupService.updateSiteGroup(siteGroup)));
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteSiteGroupById(@PathVariable Long id) {
+    @DeleteMapping("{groupId}")
+    public ResponseEntity<Void> deleteSiteGroupById(@PathVariable("groupId") Long id) {
         siteGroupService.deleteSiteGroupById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}/sites")
-    public ResponseEntity<Void> deleteSitesFromGroup(@RequestBody List<SiteDto> sites, @PathVariable("id") Long groupId) {
-        List<Site> dtoToSiteList = sites.stream()
+    @DeleteMapping("/{groupId}/sites")
+    public ResponseEntity<Void> deleteSitesFromGroup(@RequestBody List<SiteDto> siteDtoList, @PathVariable("groupId") Long id) {
+        List<Site> groupSitesList = siteDtoList.stream()
                 .map(siteDto -> modelMapper.map(siteDto, Site.class))
                 .toList();
-        siteGroupService.deleteSitesFromGroup(dtoToSiteList, groupId);
+        siteGroupService.deleteSitesFromGroupById(groupSitesList, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

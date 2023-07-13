@@ -7,11 +7,11 @@ import java.util.List;
 public interface SiteService {
     List<Site> getAllSites();
 
-    boolean deleteSiteById(Long id);
+    void deleteSiteById(Long id);
 
     Site getSiteById(Long id);
 
-    Site updateSite(Site dtoToSite);
+    Site updateSite(Site site);
 
-    void addSite(Site dtoToSite);
+    void addSite(Site site);
 }

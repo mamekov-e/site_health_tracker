@@ -1,8 +1,6 @@
 package kz.sitehealthtracker.site_health_tracker.web.controller;
 
-import kz.sitehealthtracker.site_health_tracker.config.exception.BadRequestException;
 import kz.sitehealthtracker.site_health_tracker.model.Site;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.service.SiteService;
 import kz.sitehealthtracker.site_health_tracker.web.dtos.SiteDto;
 import org.modelmapper.ModelMapper;
@@ -35,16 +33,16 @@ public class SiteController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> addSite(@RequestBody SiteDto site) {
-        Site dtoToSite = convertToEntity(site);
-        siteService.addSite(dtoToSite);
-        return ResponseEntity.ok(dtoToSite.getId());
+    public ResponseEntity<Long> addSite(@RequestBody SiteDto siteDto) {
+        Site site = convertToEntity(siteDto);
+        siteService.addSite(site);
+        return ResponseEntity.ok(site.getId());
     }
 
     @PutMapping
-    public ResponseEntity<SiteDto> updateSite(@RequestBody SiteDto site) {
-        Site dtoToSite = convertToEntity(site);
-        return ResponseEntity.ok(convertToDto(siteService.updateSite(dtoToSite)));
+    public ResponseEntity<SiteDto> updateSite(@RequestBody SiteDto siteDto) {
+        Site site = convertToEntity(siteDto);
+        return ResponseEntity.ok(convertToDto(siteService.updateSite(site)));
     }
 
     @DeleteMapping("{id}")

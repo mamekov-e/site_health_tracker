@@ -32,8 +32,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Override
     public List<Site> getAllGroupSitesById(Long id) {
-        SiteGroup siteGroup = siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+        SiteGroup siteGroup = getSiteGroupById(id);
 
         return siteGroup.getSites();
     }
@@ -51,9 +50,8 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
-    public void addSitesToGroup(List<Site> sitesOfGroup, Long groupId) {
-        SiteGroup siteGroup = siteGroupRepository.findById(groupId)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), groupId));
+    public void addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
+        SiteGroup siteGroup = getSiteGroupById(id);
 
         siteGroup.addSites(sitesOfGroup);
         updateGroupStatus(siteGroup);
@@ -63,12 +61,10 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Override
     public SiteGroup updateSiteGroup(SiteGroup updatedSiteGroup) {
-        siteGroupRepository.findById(updatedSiteGroup.getId())
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), updatedSiteGroup.getId()));
+        checkIfSiteGroupExistById(updatedSiteGroup.getId());
 
         boolean siteUpdatedNameAlreadyExist = siteGroupRepository
                 .existsSiteGroupsByNameAndIdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId());
-
         if (siteUpdatedNameAlreadyExist) {
             throw BadRequestException
                     .entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSiteGroup.getName());
@@ -106,17 +102,15 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Override
     public void deleteSiteGroupById(Long id) {
-        siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+        checkIfSiteGroupExistById(id);
 
         siteGroupRepository.deleteById(id);
     }
 
 
     @Override
-    public void deleteSitesFromGroup(List<Site> sitesOfGroup, Long groupId) {
-        SiteGroup siteGroup = siteGroupRepository.findById(groupId)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), groupId));
+    public void deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {
+        SiteGroup siteGroup = getSiteGroupById(id);
 
         siteGroup.removeSites(sitesOfGroup);
         updateGroupStatus(siteGroup);
@@ -124,4 +118,10 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         siteGroupRepository.save(siteGroup);
     }
 
+    private void checkIfSiteGroupExistById(Long id) {
+        boolean siteGroupExist = siteGroupRepository.existsById(id);
+        if (!siteGroupExist) {
+            throw NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id);
+        }
+    }
 }
