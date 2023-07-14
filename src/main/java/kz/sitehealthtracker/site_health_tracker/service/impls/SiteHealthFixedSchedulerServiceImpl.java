@@ -1,23 +1,22 @@
-package kz.sitehealthtracker.site_health_tracker.scheduler;
+package kz.sitehealthtracker.site_health_tracker.service.impls;
 
 import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
+import kz.sitehealthtracker.site_health_tracker.service.SiteHealthSchedulerService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteService;
 import kz.sitehealthtracker.site_health_tracker.utils.HttpConnectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-@Component
-public class ScheduledTasks {
-    private static final long SITE_HEALTH_CHECK_INTERVAL_IN_MILLIS = 20000; // 20sec
+@Service
+public class SiteHealthFixedSchedulerServiceImpl implements SiteHealthSchedulerService {
 
     @Autowired
     private SiteService siteService;
@@ -25,7 +24,8 @@ public class ScheduledTasks {
     @Autowired
     private SiteGroupService siteGroupService;
 
-    @Scheduled(fixedRate = SITE_HEALTH_CHECK_INTERVAL_IN_MILLIS)
+    @Scheduled(fixedRateString = "${site.healthcheck.interval}")
+    @Override
     public void checkSiteHealth() {
         List<Site> siteSet = siteService.getAllSites();
         List<Site> siteStatusChangedList = new ArrayList<>();
@@ -52,10 +52,10 @@ public class ScheduledTasks {
         }
 
         if (!siteStatusChangedList.isEmpty()) {
-            System.out.println("changed list: "+siteStatusChangedList);
+            System.out.println("changed list: " + siteStatusChangedList);
             for (Site site : siteStatusChangedList) {
                 List<SiteGroup> siteGroups = site.getGroups();
-                System.out.println("groups list: "+siteGroups);
+                System.out.println("groups list: " + siteGroups);
                 if (!siteGroups.isEmpty()) {
                     for (SiteGroup siteGroup : siteGroups) {
                         siteGroupService.updateGroupStatus(siteGroup);
