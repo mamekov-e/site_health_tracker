@@ -7,10 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "site_groups")
@@ -25,31 +24,36 @@ public class SiteGroup extends BaseEntity<Long> {
     @Column(name = "status")
     @Type(PostgreSQLEnumType.class)
     private SiteGroupStatus status;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))
-    private Set<Site> sites = new HashSet<>();
+    private List<Site> sites = new ArrayList<>();
 
-    public void addSites(Set<Site> sitesList) {
-        this.sites.addAll(sitesList);
+    public void addSites(List<Site> sitesOfGroup) {
+        for (Site site : sitesOfGroup) {
+            this.sites.add(site);
+            site.getGroups().add(this);
+        }
     }
 
     public void removeSites(List<Site> sitesOfGroup) {
-        sitesOfGroup.forEach(this.sites::remove);
-        sitesOfGroup.forEach(site -> site.getGroups().remove(this));
+        for (Site site : sitesOfGroup) {
+            this.sites.remove(site);
+            site.getGroups().remove(this);
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SiteGroup siteGroup)) return false;
-        return getName().equals(siteGroup.getName()) && Objects.equals(getDescription(), siteGroup.getDescription()) && getStatus() == siteGroup.getStatus();
+        return super.getId().equals(siteGroup.getId()) && getName().equals(siteGroup.getName()) && Objects.equals(getDescription(), siteGroup.getDescription()) && getStatus() == siteGroup.getStatus();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getStatus());
+        return Objects.hash(super.getId(), getName(), getDescription(), getStatus());
     }
 
     @Override

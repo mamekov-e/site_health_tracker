@@ -4,10 +4,13 @@ import kz.sitehealthtracker.site_health_tracker.config.exception.BadRequestExcep
 import kz.sitehealthtracker.site_health_tracker.config.exception.NotFoundException;
 import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
+import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.SiteRepository;
+import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -17,6 +20,9 @@ public class SiteServiceImpl implements SiteService {
 
     @Autowired
     private SiteRepository siteRepository;
+
+    @Autowired
+    private SiteGroupService siteGroupService;
 
 
     @Override
@@ -31,41 +37,50 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public Site updateSite(Site updatedSite) {
-        checkIfSiteExistById(updatedSite.getId());
-
-        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
-        if (siteUpdatedUrlAlreadyExist) {
-            throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
-        }
-
-        return siteRepository.save(updatedSite);
-    }
-
-    @Override
     public void addSite(Site site) {
         boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIsIgnoreCase(site.getUrl());
         if (siteUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), site.getUrl());
         }
-
+        site.setStatus(SiteStatus.DOWN);
         siteRepository.save(site);
+    }
+
+    @Transactional
+    @Override
+    public Site updateSite(Site updatedSite) {
+        Site siteInDb = getSiteById(updatedSite.getId());
+
+        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
+        if (siteUpdatedUrlAlreadyExist) {
+            throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
+        }
+        updatedSite.setStatus(siteInDb.getStatus());
+        siteRepository.updateSiteById(
+                updatedSite.getName(),
+                updatedSite.getDescription(),
+                updatedSite.getUrl(),
+                updatedSite.getId());
+
+        return updatedSite;
+    }
+
+    @Transactional
+    @Override
+    public void updateSiteStatusById(SiteStatus status, Long id) {
+        siteRepository.updateSiteStatusById(status, id);
     }
 
     @Override
     public void deleteSiteById(Long id) {
         Site site = getSiteById(id);
-        Set<SiteGroup> allSiteGroups = site.getGroups();
-        site.removeGroups(allSiteGroups);
 
-        siteRepository.deleteById(id);
-    }
-
-    private void checkIfSiteExistById(Long id) {
-        boolean siteGroupExist = siteRepository.existsById(id);
-        if (!siteGroupExist) {
-            throw NotFoundException.entityNotFoundById(Site.class.getSimpleName(), id);
+        List<SiteGroup> siteGroups = site.getGroups();
+        for (SiteGroup group : siteGroups) {
+            group.getSites().remove(site);
+            siteGroupService.updateGroupStatus(group);
         }
+        siteRepository.deleteById(id);
     }
 
 }

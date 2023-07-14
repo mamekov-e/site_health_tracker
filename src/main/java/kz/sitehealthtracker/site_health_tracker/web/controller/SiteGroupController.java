@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/site-groups")
@@ -22,50 +20,50 @@ public class SiteGroupController {
     private SiteGroupService siteGroupService;
 
     @GetMapping
-    public ResponseEntity<List<SiteGroupDto>> getAllSiteGroups() {
-        List<SiteGroup> siteGroupList = siteGroupService.getAllSiteGroups();
-        List<SiteGroupDto> siteGroupDtoList = siteGroupList.stream()
-                .map(siteGroup -> ConverterUtil.convert(siteGroup, SiteGroupDto.class)).toList();
-        return ResponseEntity.ok(siteGroupDtoList);
+    public ResponseEntity<List<SiteGroupDto>> getAllSitesOfGroup() {
+        List<SiteGroup> sitesGroup = siteGroupService.getAllSitesOfGroup();
+        List<SiteGroupDto> siteGroupsDto = ConverterUtil.convertList(sitesGroup, SiteGroupDto.class);
+        return ResponseEntity.ok(siteGroupsDto);
     }
 
     @GetMapping("{groupId}")
     public ResponseEntity<SiteGroupDto> getSiteGroupById(@PathVariable("groupId") Long id) {
         SiteGroup siteGroup = siteGroupService.getSiteGroupById(id);
-        SiteGroupDto siteGroupDtoResponse = ConverterUtil.convert(siteGroup, SiteGroupDto.class);
+        SiteGroupDto siteGroupDtoResponse = ConverterUtil.convertObject(siteGroup, SiteGroupDto.class);
         return ResponseEntity.ok(siteGroupDtoResponse);
     }
 
     @GetMapping("{groupId}/sites")
-    public ResponseEntity<Set<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
-        Set<Site> groupSitesList = siteGroupService.getAllGroupSitesById(id);
-        Set<SiteDto> groupSitesDtoList = groupSitesList.stream()
-                .map(site -> ConverterUtil.convert(site, SiteDto.class))
-                .collect(Collectors.toSet());
-        return ResponseEntity.ok(groupSitesDtoList);
+    public ResponseEntity<List<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
+        List<Site> sitesGroup = siteGroupService.getAllGroupSitesById(id);
+        List<SiteDto> sitesGroupDto = ConverterUtil.convertList(sitesGroup, SiteDto.class);
+        return ResponseEntity.ok(sitesGroupDto);
     }
 
     @PostMapping
     public ResponseEntity<Long> addSiteGroup(@RequestBody SiteGroupDto siteGroupDto) {
-        SiteGroup siteGroup = ConverterUtil.convert(siteGroupDto, SiteGroup.class);
+        SiteGroup siteGroup = ConverterUtil.convertObject(siteGroupDto, SiteGroup.class);
         siteGroupService.addSiteGroup(siteGroup);
         return new ResponseEntity<>(siteGroup.getId(), HttpStatus.CREATED);
     }
 
     @PostMapping("/{groupId}/sites")
-    public ResponseEntity<Void> addSitesToGroup(@RequestBody List<SiteDto> sites, @PathVariable("groupId") Long id) {
-        Set<Site> groupSitesList = sites.stream()
-                .map(siteDto -> ConverterUtil.convert(siteDto, Site.class))
-                .collect(Collectors.toSet());
-        siteGroupService.addSitesToGroupById(groupSitesList, id);
+    public ResponseEntity<List<SiteDto>> addSitesToGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
+        List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
+
+        List<Site> alreadyExistingSites = siteGroupService.addSitesToGroupById(sites, id);
+        if (alreadyExistingSites != null) {
+            List<SiteDto> alreadyExistingSitesDto = ConverterUtil.convertList(alreadyExistingSites, SiteDto.class);
+            return new ResponseEntity<>(alreadyExistingSitesDto, HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping
     public ResponseEntity<SiteGroupDto> updateSiteGroup(@RequestBody SiteGroupDto siteGroupDto) {
-        SiteGroup siteGroup = ConverterUtil.convert(siteGroupDto, SiteGroup.class);
+        SiteGroup siteGroup = ConverterUtil.convertObject(siteGroupDto, SiteGroup.class);
         SiteGroupDto siteGroupDtoResponse = ConverterUtil
-                .convert(siteGroupService.updateSiteGroup(siteGroup), SiteGroupDto.class);
+                .convertObject(siteGroupService.updateSiteGroup(siteGroup), SiteGroupDto.class);
         return ResponseEntity.ok(siteGroupDtoResponse);
     }
 
@@ -76,11 +74,15 @@ public class SiteGroupController {
     }
 
     @DeleteMapping("/{groupId}/sites")
-    public ResponseEntity<Void> deleteSitesFromGroup(@RequestBody List<SiteDto> siteDtoList, @PathVariable("groupId") Long id) {
-        List<Site> groupSitesList = siteDtoList.stream()
-                .map(siteDto -> ConverterUtil.convert(siteDto, Site.class))
-                .toList();
-        siteGroupService.deleteSitesFromGroupById(groupSitesList, id);
+    public ResponseEntity<List<SiteDto>> deleteSitesFromGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
+        List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
+
+        List<Site> nonExistentSites = siteGroupService.deleteSitesFromGroupById(sites, id);
+        if (nonExistentSites != null) {
+            List<SiteDto> nonExistentSitesDto = ConverterUtil.convertList(sitesDto, SiteDto.class);
+            return new ResponseEntity<>(nonExistentSitesDto, HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

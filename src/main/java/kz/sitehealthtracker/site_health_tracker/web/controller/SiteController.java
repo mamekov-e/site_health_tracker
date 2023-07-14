@@ -19,31 +19,31 @@ public class SiteController {
 
     @GetMapping
     public ResponseEntity<List<SiteDto>> getAllSites() {
-        List<Site> siteList = siteService.getAllSites();
-        List<SiteDto> siteDtoList = siteList.stream()
-                .map(site -> ConverterUtil.convert(site, SiteDto.class)).toList();
-        return ResponseEntity.ok(siteDtoList);
+        List<Site> sites = siteService.getAllSites();
+        List<SiteDto> sitesDto = sites.stream()
+                .map(site -> ConverterUtil.convertObject(site, SiteDto.class)).toList();
+        return ResponseEntity.ok(sitesDto);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<SiteDto> getSiteById(@PathVariable("id") Long id) {
         Site site = siteService.getSiteById(id);
-        SiteDto siteDtoResponse = ConverterUtil.convert(site, SiteDto.class);
+        SiteDto siteDtoResponse = ConverterUtil.convertObject(site, SiteDto.class);
         return ResponseEntity.ok(siteDtoResponse);
     }
 
     @PostMapping
     public ResponseEntity<Long> addSite(@RequestBody SiteDto siteDto) {
-        Site site = ConverterUtil.convert(siteDto, Site.class);
+        Site site = ConverterUtil.convertObject(siteDto, Site.class);
         siteService.addSite(site);
         return new ResponseEntity<>(site.getId(),HttpStatus.CREATED);
     }
 
     @PutMapping
     public ResponseEntity<SiteDto> updateSite(@RequestBody SiteDto siteDto) {
-        Site site = ConverterUtil.convert(siteDto, Site.class);
+        Site site = ConverterUtil.convertObject(siteDto, Site.class);
         Site siteUpdated = siteService.updateSite(site);
-        SiteDto siteDtoResponse = ConverterUtil.convert(siteUpdated, SiteDto.class);
+        SiteDto siteDtoResponse = ConverterUtil.convertObject(siteUpdated, SiteDto.class);
         return ResponseEntity.ok(siteDtoResponse);
     }
 
