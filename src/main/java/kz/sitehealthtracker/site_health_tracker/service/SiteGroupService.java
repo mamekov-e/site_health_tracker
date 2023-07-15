@@ -14,7 +14,7 @@ public interface SiteGroupService {
 
     void addSiteGroup(SiteGroup siteGroup);
 
-    List<Site> addSitesToGroupById(List<Site> sitesOfGroup, Long id);
+    void addSitesToGroupById(List<Site> sitesOfGroup, Long id);
 
     SiteGroup updateSiteGroup(SiteGroup siteGroup);
 
@@ -22,6 +22,6 @@ public interface SiteGroupService {
 
     void deleteSiteGroupById(Long id);
 
-    List<Site> deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id);
+    void deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id);
 
 }

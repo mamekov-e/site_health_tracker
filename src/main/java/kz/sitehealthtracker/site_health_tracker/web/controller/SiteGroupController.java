@@ -48,14 +48,10 @@ public class SiteGroupController {
     }
 
     @PostMapping("/{groupId}/sites")
-    public ResponseEntity<List<SiteDto>> addSitesToGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
+    public ResponseEntity<Void> addSitesToGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
         List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
 
-        List<Site> alreadyExistingSites = siteGroupService.addSitesToGroupById(sites, id);
-        if (alreadyExistingSites != null) {
-            List<SiteDto> alreadyExistingSitesDto = ConverterUtil.convertList(alreadyExistingSites, SiteDto.class);
-            return new ResponseEntity<>(alreadyExistingSitesDto, HttpStatus.BAD_REQUEST);
-        }
+        siteGroupService.addSitesToGroupById(sites, id);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -74,15 +70,10 @@ public class SiteGroupController {
     }
 
     @DeleteMapping("/{groupId}/sites")
-    public ResponseEntity<List<SiteDto>> deleteSitesFromGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
+    public ResponseEntity<Void> deleteSitesFromGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
         List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
 
-        List<Site> nonExistentSites = siteGroupService.deleteSitesFromGroupById(sites, id);
-        if (nonExistentSites != null) {
-            List<SiteDto> nonExistentSitesDto = ConverterUtil.convertList(sitesDto, SiteDto.class);
-            return new ResponseEntity<>(nonExistentSitesDto, HttpStatus.BAD_REQUEST);
-        }
-
+        siteGroupService.deleteSitesFromGroupById(sites, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

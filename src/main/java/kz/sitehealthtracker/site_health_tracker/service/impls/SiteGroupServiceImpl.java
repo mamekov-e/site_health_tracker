@@ -8,6 +8,8 @@ import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.SiteGroupRepository;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
+import kz.sitehealthtracker.site_health_tracker.utils.ConverterUtil;
+import kz.sitehealthtracker.site_health_tracker.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +53,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
-    public List<Site> addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
+    public void addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
         SiteGroup siteGroup = getSiteGroupById(id);
 
         List<Site> alreadyExistingSites = new ArrayList<>();
@@ -62,12 +64,13 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             }
         }
         if (!alreadyExistingSites.isEmpty()) {
-            return alreadyExistingSites;
+            List<SiteDto> alreadyExistingSitesDto = ConverterUtil.convertList(alreadyExistingSites, SiteDto.class);
+            throw BadRequestException
+                    .entityCollectionWithElementsFailedByExistence(Site.class.getSimpleName(), alreadyExistingSitesDto, true);
         }
 
         siteGroup.addSites(sitesOfGroup);
         updateGroupStatus(siteGroup);
-        return null;
     }
 
     @Transactional
@@ -127,7 +130,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
 
     @Override
-    public List<Site> deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {
+    public void deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {
         SiteGroup siteGroup = getSiteGroupById(id);
 
         List<Site> nonExistentSites = new ArrayList<>();
@@ -139,7 +142,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             }
         }
         if (!nonExistentSites.isEmpty()) {
-            return nonExistentSites;
+            List<SiteDto> nonExistentSitesDto = ConverterUtil.convertList(nonExistentSites, SiteDto.class);
+            throw BadRequestException
+                    .entityCollectionWithElementsFailedByExistence(Site.class.getSimpleName(), nonExistentSitesDto, false);
         }
 
 
@@ -147,7 +152,6 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             siteGroup.removeSites(sitesOfGroup);
             updateGroupStatus(siteGroup);
         }
-        return null;
     }
 
     private void checkIfSiteGroupExistById(Long id) {
