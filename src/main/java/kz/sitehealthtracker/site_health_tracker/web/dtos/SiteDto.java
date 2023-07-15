@@ -13,5 +13,6 @@ public class SiteDto {
     private String name;
     private String description;
     private String url;
+    private Long siteHealthCheckInterval;
     private SiteStatus status;
 }

@@ -7,13 +7,13 @@ import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.SiteRepository;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
+import kz.sitehealthtracker.site_health_tracker.service.SiteHealthSchedulerService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class SiteServiceImpl implements SiteService {
@@ -23,6 +23,9 @@ public class SiteServiceImpl implements SiteService {
 
     @Autowired
     private SiteGroupService siteGroupService;
+
+    @Autowired
+    private SiteHealthSchedulerService siteHealthSchedulerService;
 
 
     @Override
@@ -43,10 +46,10 @@ public class SiteServiceImpl implements SiteService {
             throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), site.getUrl());
         }
         site.setStatus(SiteStatus.DOWN);
-        siteRepository.save(site);
+        Site siteSaved = siteRepository.save(site);
+        siteHealthSchedulerService.addScheduledTask(siteSaved);
     }
 
-    @Transactional
     @Override
     public Site updateSite(Site updatedSite) {
         Site siteInDb = getSiteById(updatedSite.getId());
@@ -55,14 +58,13 @@ public class SiteServiceImpl implements SiteService {
         if (siteUpdatedUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
         }
-        updatedSite.setStatus(siteInDb.getStatus());
-        siteRepository.updateSiteById(
-                updatedSite.getName(),
-                updatedSite.getDescription(),
-                updatedSite.getUrl(),
-                updatedSite.getId());
 
-        return updatedSite;
+        siteHealthSchedulerService.updateScheduledTask(siteInDb, updatedSite);
+
+        updatedSite.setStatus(siteInDb.getStatus());
+        updatedSite.setGroups(siteInDb.getGroups());
+
+        return siteRepository.save(updatedSite);
     }
 
     @Transactional
@@ -81,6 +83,7 @@ public class SiteServiceImpl implements SiteService {
             siteGroupService.updateGroupStatus(group);
         }
         siteRepository.deleteById(id);
+        siteHealthSchedulerService.deleteScheduledTask(site);
     }
 
 }

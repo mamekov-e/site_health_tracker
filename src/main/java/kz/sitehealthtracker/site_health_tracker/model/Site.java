@@ -22,6 +22,8 @@ public class Site extends BaseEntity<Long> {
     private String description;
     @Column(name = "url", unique = true)
     private String url;
+    @Column(name = "site_health_check_interval")
+    private Integer siteHealthCheckInterval;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "site_status")
     @Type(PostgreSQLEnumType.class)
@@ -29,23 +31,20 @@ public class Site extends BaseEntity<Long> {
     @ManyToMany(mappedBy = "sites", fetch = FetchType.EAGER)
     private List<SiteGroup> groups = new ArrayList<>();
 
-//    @PreRemove
-//    public void removeGroupsAssociation() {
-//        for (SiteGroup group : this.groups) {
-//            group.getSites().remove(this);
-//        }
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Site site)) return false;
-        return super.getId().equals(site.getId()) && getName().equals(site.getName()) && Objects.equals(getDescription(), site.getDescription()) && getUrl().equals(site.getUrl());
+        return super.getId().equals(site.getId()) &&
+                getName().equals(site.getName()) &&
+                Objects.equals(getDescription(), site.getDescription()) &&
+                Objects.equals(getSiteHealthCheckInterval(), site.getSiteHealthCheckInterval()) &&
+                getUrl().equals(site.getUrl());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.getId(), getName(), getDescription(), getUrl());
+        return Objects.hash(super.getId(), getName(), getDescription(), getSiteHealthCheckInterval(), getUrl());
     }
 
     @Override
@@ -54,7 +53,9 @@ public class Site extends BaseEntity<Long> {
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", url='" + url + '\'' +
+                ", siteHealthCheckInterval=" + siteHealthCheckInterval +
                 ", status=" + status +
+                ", groups=" + groups +
                 '}';
     }
 }

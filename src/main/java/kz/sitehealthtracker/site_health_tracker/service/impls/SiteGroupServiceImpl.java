@@ -94,6 +94,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public void updateGroupStatus(SiteGroup siteGroup) {
         List<Site> sitesOfGroup = siteGroup.getSites();
+        System.out.printf("All sites of %s group: %s\n", siteGroup.getName(), sitesOfGroup);
         SiteGroupStatus siteGroupStatus;
         if (sitesOfGroup.isEmpty()) {
             siteGroupStatus = SiteGroupStatus.NO_SITES;

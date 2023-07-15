@@ -1,8 +1,5 @@
 package kz.sitehealthtracker.site_health_tracker.utils;
 
-import kz.sitehealthtracker.site_health_tracker.config.exception.BadRequestException;
-import kz.sitehealthtracker.site_health_tracker.model.Site;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -28,6 +25,7 @@ public class HttpConnectionUtil {
                 urlConnection.disconnect();
             }
         }
+        System.out.printf("Checking url %s status response: %s%n", urlString, status);
         return status;
     }
 }
