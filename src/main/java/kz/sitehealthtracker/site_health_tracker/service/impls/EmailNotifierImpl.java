@@ -5,6 +5,8 @@ import jakarta.mail.internet.MimeMessage;
 import kz.sitehealthtracker.site_health_tracker.config.exception.BadRequestException;
 import kz.sitehealthtracker.site_health_tracker.config.exception.NotFoundException;
 import kz.sitehealthtracker.site_health_tracker.model.Email;
+import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
+import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.EmailRepository;
 import kz.sitehealthtracker.site_health_tracker.service.EmailNotifierService;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
@@ -14,7 +16,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static kz.sitehealthtracker.site_health_tracker.constants.RandomValues.RANDOM__VERIFICATION_CODE_LENGTH;
+import static kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates.GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE;
+import static kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates.VERIFICATION_MESSAGE_CONTENT_TEMPLATE;
 
 @Service
 public class EmailNotifierImpl implements EmailNotifierService {
@@ -40,11 +46,6 @@ public class EmailNotifierImpl implements EmailNotifierService {
             emailRepository.save(email);
             return true;
         }
-    }
-
-    @Override
-    public void sendNotification(String to) {
-
     }
 
     @Override
@@ -75,25 +76,40 @@ public class EmailNotifierImpl implements EmailNotifierService {
         emailRepository.delete(email);
     }
 
+    @Override
+    public void notifySubscribers(SiteGroup siteGroup, SiteGroupStatus oldStatus) {
+        List<Email> subscribersList = emailRepository.findAllByEnabledIs(true);
+
+        if (!subscribersList.isEmpty()) {
+            String subject = "Group status changed";
+            String content = String.format(GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE,
+                    siteGroup.getName(), siteGroup.getStatus().getStatusValue(), oldStatus.getStatusValue());
+
+            for (Email email : subscribersList) {
+                sendMimeMessageInHtml(email.getAddress(), subject, content);
+            }
+        }
+    }
+
     private void sendEmailVerification(Email email, String urlPath) {
         String subject = "Verify your registration";
         String verificationUrl = urlPath + "/verify?code=" + email.getVerificationCode();
-        String content = String.format("Dear, subscriber to Site Health Tracker mailing!<br>" +
-                "Please, verify your registration by clicking link below:" +
-                "<h4><a href=\"%s\">Click me to verify</a></h4>" +
-                "Thank you," +
-                "Site Health Tracker team.", verificationUrl);
+        String content = String.format(VERIFICATION_MESSAGE_CONTENT_TEMPLATE, verificationUrl);
 
+        sendMimeMessageInHtml(email.getAddress(), subject, content);
+    }
+
+    private void sendMimeMessageInHtml(String receiver, String subject, String content) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
 
         try {
             messageHelper.setFrom(sender);
-            messageHelper.setTo(email.getAddress());
+            messageHelper.setTo(receiver);
             messageHelper.setSubject(subject);
             messageHelper.setText(content, true);
         } catch (MessagingException e) {
-            throw BadRequestException.sendingMessageToEmailAddressFailed(email.getAddress());
+            throw BadRequestException.sendingMessageToEmailAddressFailed(receiver);
         }
 
         mailSender.send(mimeMessage);

@@ -3,7 +3,9 @@ package kz.sitehealthtracker.site_health_tracker.service.impls;
 import jakarta.annotation.PostConstruct;
 import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
+import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
+import kz.sitehealthtracker.site_health_tracker.service.EmailNotifierService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteHealthSchedulerService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteService;
@@ -28,6 +30,9 @@ public class MultipleSiteHealthSchedulerServiceImpl implements SiteHealthSchedul
     private SiteService siteService;
     @Autowired
     private SiteGroupService siteGroupService;
+
+    @Autowired
+    private EmailNotifierService emailNotifierService;
 
     public MultipleSiteHealthSchedulerServiceImpl() {
         this.scheduledTasks = new ConcurrentHashMap<>();
@@ -81,7 +86,9 @@ public class MultipleSiteHealthSchedulerServiceImpl implements SiteHealthSchedul
             System.out.println("site groups list: " + siteGroups);
             if (!siteGroups.isEmpty()) {
                 for (SiteGroup siteGroup : siteGroups) {
+                    SiteGroupStatus oldStatus = siteGroup.getStatus();
                     siteGroupService.updateGroupStatus(siteGroup);
+                    emailNotifierService.notifySubscribers(siteGroup, oldStatus);
                     System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
                 }
             }
