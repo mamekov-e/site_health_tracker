@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "emails")
 @Data
@@ -17,6 +19,9 @@ public class Email extends BaseEntity<Long> {
     private String address;
     @Column(name = "verification_code")
     private String verificationCode;
+    @Column(name = "code_expiration_time")
+    private LocalDateTime codeExpirationTime;
     @Column(name = "enabled")
     private boolean enabled = false;
+
 }
