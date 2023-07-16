@@ -25,7 +25,7 @@ public class SiteController {
         return ResponseEntity.ok(sitesDto);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<SiteDto> getSiteById(@PathVariable("id") Long id) {
         Site site = siteService.getSiteById(id);
         SiteDto siteDtoResponse = ConverterUtil.convertObject(site, SiteDto.class);
@@ -47,7 +47,7 @@ public class SiteController {
         return ResponseEntity.ok(siteDtoResponse);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSiteById(@PathVariable Long id) {
         siteService.deleteSiteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

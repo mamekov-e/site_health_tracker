@@ -26,14 +26,14 @@ public class SiteGroupController {
         return ResponseEntity.ok(siteGroupsDto);
     }
 
-    @GetMapping("{groupId}")
+    @GetMapping("/{groupId}")
     public ResponseEntity<SiteGroupDto> getSiteGroupById(@PathVariable("groupId") Long id) {
         SiteGroup siteGroup = siteGroupService.getSiteGroupById(id);
         SiteGroupDto siteGroupDtoResponse = ConverterUtil.convertObject(siteGroup, SiteGroupDto.class);
         return ResponseEntity.ok(siteGroupDtoResponse);
     }
 
-    @GetMapping("{groupId}/sites")
+    @GetMapping("/{groupId}/sites")
     public ResponseEntity<List<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
         List<Site> sitesGroup = siteGroupService.getAllGroupSitesById(id);
         List<SiteDto> sitesGroupDto = ConverterUtil.convertList(sitesGroup, SiteDto.class);
@@ -63,7 +63,7 @@ public class SiteGroupController {
         return ResponseEntity.ok(siteGroupDtoResponse);
     }
 
-    @DeleteMapping("{groupId}")
+    @DeleteMapping("/{groupId}")
     public ResponseEntity<Void> deleteSiteGroupById(@PathVariable("groupId") Long id) {
         siteGroupService.deleteSiteGroupById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

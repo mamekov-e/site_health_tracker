@@ -20,4 +20,8 @@ public class BadRequestException extends BaseException {
         String existOrNotValue = exist ? "already" : "does-not";
         return new BadRequestException(String.format("entity-collection-%s-with-elements-%s-exist", entityName, existOrNotValue), body);
     }
+
+    public static BadRequestException sendingMessageToEmailAddressFailed(String address) {
+        return new BadRequestException(String.format("sending-message-to-%s-failed", address));
+    }
 }
