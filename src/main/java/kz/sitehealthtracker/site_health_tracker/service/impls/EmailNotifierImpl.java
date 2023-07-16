@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static kz.sitehealthtracker.site_health_tracker.constants.RandomValues.RANDOM__VERIFICATION_CODE_LENGTH;
@@ -25,6 +28,8 @@ import static kz.sitehealthtracker.site_health_tracker.constants.SendingMessageT
 @Service
 public class EmailNotifierImpl implements EmailNotifierService {
 
+    public static final int CODE_EXPIRATION_CHECK_INTERVAL = 60000 * 60; // checks each 1 hour
+    public static final LocalDateTime CODE_EXPIRATION_TIME = LocalDateTime.now().plusHours(1);
     @Autowired
     private EmailRepository emailRepository;
 
@@ -33,6 +38,14 @@ public class EmailNotifierImpl implements EmailNotifierService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Transactional
+    @Scheduled(fixedRate = CODE_EXPIRATION_CHECK_INTERVAL)
+    public void checkVerificationCodeExpired() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        System.out.println(currentTime);
+        emailRepository.deleteAllByEnabledFalseAndCodeExpirationTimeBefore(currentTime);
+    }
 
     @Override
     public boolean verify(String code) {
@@ -43,6 +56,7 @@ public class EmailNotifierImpl implements EmailNotifierService {
         } else {
             email.setEnabled(true);
             email.setVerificationCode(null);
+            email.setCodeExpirationTime(null);
             emailRepository.save(email);
             return true;
         }
@@ -50,35 +64,34 @@ public class EmailNotifierImpl implements EmailNotifierService {
 
     @Override
     public Email registerEmailToNotifier(String address, String urlPath) {
-        Email email = emailRepository.findByAddress(address)
-                .orElse(new Email());
+        Email email = emailRepository.findByAddress(address).orElse(new Email());
 
         if (email.getId() != null && email.isEnabled()) {
-            throw BadRequestException
-                    .entityWithFieldValueAlreadyExist(Email.class.getSimpleName(), address);
+            throw BadRequestException.entityWithFieldValueAlreadyExist(Email.class.getSimpleName(), address);
         }
 
         String randomCode = RandomString.make(RANDOM__VERIFICATION_CODE_LENGTH);
         email.setAddress(address);
         email.setVerificationCode(randomCode);
+        email.setCodeExpirationTime(CODE_EXPIRATION_TIME);
 
         emailRepository.save(email);
         sendEmailVerification(email, urlPath);
+        System.out.println("added:" + email);
         return email;
     }
 
     @Override
     public void unregisterEmailFromNotifier(String address) {
         Email email = emailRepository.findByAddress(address)
-                .orElseThrow(() -> NotFoundException
-                        .entityNotFoundBy(Email.class.getSimpleName(), address));
+                .orElseThrow(() -> NotFoundException.entityNotFoundBy(Email.class.getSimpleName(), address));
 
         emailRepository.delete(email);
     }
 
     @Override
     public void notifySubscribers(SiteGroup siteGroup, SiteGroupStatus oldStatus) {
-        List<Email> subscribersList = emailRepository.findAllByEnabledIs(true);
+        List<Email> subscribersList = emailRepository.findAllByEnabledTrue();
 
         if (!subscribersList.isEmpty()) {
             String subject = "Group status changed";
