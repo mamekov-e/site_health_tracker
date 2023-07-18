@@ -4,6 +4,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import kz.sitehealthtracker.site_health_tracker.config.exception.BadRequestException;
 import kz.sitehealthtracker.site_health_tracker.config.exception.NotFoundException;
+import kz.sitehealthtracker.site_health_tracker.constants.Delimiters;
+import kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates;
 import kz.sitehealthtracker.site_health_tracker.model.Email;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
@@ -22,11 +24,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static kz.sitehealthtracker.site_health_tracker.constants.RandomValues.RANDOM__VERIFICATION_CODE_LENGTH;
-import static kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates.GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE;
-import static kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates.VERIFICATION_MESSAGE_CONTENT_TEMPLATE;
+import static kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates.EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE;
 
 @Service
-public class EmailNotifierImpl implements EmailNotifierService {
+public class EmailNotifierServiceImpl implements EmailNotifierService {
 
     public static final int CODE_EXPIRATION_CHECK_INTERVAL = 60000 * 60; // checks each 1 hour
     public static final LocalDateTime CODE_EXPIRATION_TIME = LocalDateTime.now().plusHours(1);
@@ -94,9 +95,9 @@ public class EmailNotifierImpl implements EmailNotifierService {
         List<Email> subscribersList = emailRepository.findAllByEnabledTrue();
 
         if (!subscribersList.isEmpty()) {
-            String subject = "Group status changed";
-            String content = String.format(GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE,
-                    siteGroup.getName(), siteGroup.getStatus().getStatusValue(), oldStatus.getStatusValue());
+            String subject = "Статус групп изменился";
+            String content = SendingMessageTemplates
+                    .groupStatusChangedTemplateWithDelimiter(siteGroup, Delimiters.HTML_BR);
 
             for (Email email : subscribersList) {
                 sendMimeMessageInHtml(email.getAddress(), subject, content);
@@ -105,9 +106,9 @@ public class EmailNotifierImpl implements EmailNotifierService {
     }
 
     private void sendEmailVerification(Email email, String urlPath) {
-        String subject = "Verify your registration";
+        String subject = "Подтвердите вашу подписку";
         String verificationUrl = urlPath + "/verify?code=" + email.getVerificationCode();
-        String content = String.format(VERIFICATION_MESSAGE_CONTENT_TEMPLATE, verificationUrl);
+        String content = String.format(EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE, verificationUrl);
 
         sendMimeMessageInHtml(email.getAddress(), subject, content);
     }
@@ -121,10 +122,10 @@ public class EmailNotifierImpl implements EmailNotifierService {
             messageHelper.setTo(receiver);
             messageHelper.setSubject(subject);
             messageHelper.setText(content, true);
+            mailSender.send(mimeMessage);
         } catch (MessagingException e) {
+            System.out.println(e.getMessage());
             throw BadRequestException.sendingMessageToEmailAddressFailed(receiver);
         }
-
-        mailSender.send(mimeMessage);
     }
 }

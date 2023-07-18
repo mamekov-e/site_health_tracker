@@ -5,10 +5,7 @@ import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
-import kz.sitehealthtracker.site_health_tracker.service.EmailNotifierService;
-import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
-import kz.sitehealthtracker.site_health_tracker.service.SiteHealthSchedulerService;
-import kz.sitehealthtracker.site_health_tracker.service.SiteService;
+import kz.sitehealthtracker.site_health_tracker.service.*;
 import kz.sitehealthtracker.site_health_tracker.utils.HttpConnectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
-public class MultipleSiteHealthSchedulerServiceImpl implements SiteHealthSchedulerService {
+public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerService {
 
     private final Map<Site, ScheduledFuture<?>> scheduledTasks;
     @Autowired
@@ -34,7 +31,10 @@ public class MultipleSiteHealthSchedulerServiceImpl implements SiteHealthSchedul
     @Autowired
     private EmailNotifierService emailNotifierService;
 
-    public MultipleSiteHealthSchedulerServiceImpl() {
+    @Autowired
+    private TelegramBotNotifierService telegramBotNotifierService;
+
+    public SiteHealthSchedulerServiceImpl() {
         this.scheduledTasks = new ConcurrentHashMap<>();
     }
 
@@ -89,6 +89,7 @@ public class MultipleSiteHealthSchedulerServiceImpl implements SiteHealthSchedul
                     SiteGroupStatus oldStatus = siteGroup.getStatus();
                     siteGroupService.updateGroupStatus(siteGroup);
                     emailNotifierService.notifySubscribers(siteGroup, oldStatus);
+                    telegramBotNotifierService.notifyTelegramUsers(siteGroup, oldStatus);
                     System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
                 }
             }

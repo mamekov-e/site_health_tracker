@@ -82,8 +82,8 @@ public class SiteServiceImpl implements SiteService {
             group.getSites().remove(site);
             siteGroupService.updateGroupStatus(group);
         }
-        siteRepository.deleteById(id);
         siteHealthSchedulerService.deleteScheduledTask(site);
+        siteRepository.deleteById(id);
     }
 
 }
