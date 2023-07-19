@@ -5,7 +5,6 @@ import kz.sitehealthtracker.site_health_tracker.constants.Delimiters;
 import kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.TelegramUser;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.service.TelegramBotNotifierService;
 import kz.sitehealthtracker.site_health_tracker.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ public class TelegramBotNotifierServiceImpl implements TelegramBotNotifierServic
     private TelegramUserService telegramUserService;
 
     @Override
-    public void notifyTelegramUsers(SiteGroup siteGroup, SiteGroupStatus oldStatus) {
+    public void notifyTelegramUsers(SiteGroup siteGroup) {
         List<TelegramUser> telegramUserList = telegramUserService.findAllTelegramUsersEnabledIs(true);
 
         for (TelegramUser telegramUser : telegramUserList) {

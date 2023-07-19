@@ -28,12 +28,6 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
     @Autowired
     private SiteGroupService siteGroupService;
 
-    @Autowired
-    private EmailNotifierService emailNotifierService;
-
-    @Autowired
-    private TelegramBotNotifierService telegramBotNotifierService;
-
     public SiteHealthSchedulerServiceImpl() {
         this.scheduledTasks = new ConcurrentHashMap<>();
     }
@@ -86,11 +80,7 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
             System.out.println("site groups list: " + siteGroups);
             if (!siteGroups.isEmpty()) {
                 for (SiteGroup siteGroup : siteGroups) {
-                    SiteGroupStatus oldStatus = siteGroup.getStatus();
                     siteGroupService.updateGroupStatus(siteGroup);
-                    emailNotifierService.notifySubscribers(siteGroup, oldStatus);
-                    telegramBotNotifierService.notifyTelegramUsers(siteGroup, oldStatus);
-                    System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
                 }
             }
         } else {

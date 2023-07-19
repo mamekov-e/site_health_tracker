@@ -8,7 +8,6 @@ import kz.sitehealthtracker.site_health_tracker.constants.Delimiters;
 import kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates;
 import kz.sitehealthtracker.site_health_tracker.model.Email;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.EmailRepository;
 import kz.sitehealthtracker.site_health_tracker.service.EmailNotifierService;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
@@ -91,7 +90,7 @@ public class EmailNotifierServiceImpl implements EmailNotifierService {
     }
 
     @Override
-    public void notifySubscribers(SiteGroup siteGroup, SiteGroupStatus oldStatus) {
+    public void notifySubscribers(SiteGroup siteGroup) {
         List<Email> subscribersList = emailRepository.findAllByEnabledTrue();
 
         if (!subscribersList.isEmpty()) {

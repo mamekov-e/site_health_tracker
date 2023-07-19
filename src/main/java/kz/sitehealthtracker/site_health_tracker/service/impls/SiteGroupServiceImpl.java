@@ -7,7 +7,9 @@ import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.SiteGroupRepository;
+import kz.sitehealthtracker.site_health_tracker.service.EmailNotifierService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
+import kz.sitehealthtracker.site_health_tracker.service.TelegramBotNotifierService;
 import kz.sitehealthtracker.site_health_tracker.utils.ConverterUtil;
 import kz.sitehealthtracker.site_health_tracker.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,12 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Autowired
     private SiteGroupRepository siteGroupRepository;
+
+    @Autowired
+    private EmailNotifierService emailNotifierService;
+
+    @Autowired
+    private TelegramBotNotifierService telegramBotNotifierService;
 
     @Override
     public List<SiteGroup> getAllSitesOfGroup() {
@@ -116,9 +124,16 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                 siteGroupStatus = SiteGroupStatus.PARTIAL_UP;
             }
         }
-
-        siteGroup.setStatus(siteGroupStatus);
-        siteGroupRepository.save(siteGroup);
+        SiteGroupStatus oldStatus = siteGroup.getStatus();
+        if (!siteGroupStatus.equals(oldStatus)) {
+            siteGroup.setStatus(siteGroupStatus);
+            siteGroupRepository.save(siteGroup);
+            emailNotifierService.notifySubscribers(siteGroup);
+            telegramBotNotifierService.notifyTelegramUsers(siteGroup);
+            System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
+        } else {
+            System.out.println("Checked all sites and group status stayed the same");
+        }
     }
 
     @Override
