@@ -1,30 +1,27 @@
-package kz.sitehealthtracker.site_health_tracker.service.impls;
+package kz.sitehealthtracker.site_health_tracker.notifier.listeners;
 
 import kz.sitehealthtracker.site_health_tracker.config.ApplicationContextProvider;
 import kz.sitehealthtracker.site_health_tracker.constants.Delimiters;
 import kz.sitehealthtracker.site_health_tracker.constants.SendingMessageTemplates;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.TelegramUser;
-import kz.sitehealthtracker.site_health_tracker.service.TelegramBotNotifierService;
+import kz.sitehealthtracker.site_health_tracker.notifier.EventListener;
 import kz.sitehealthtracker.site_health_tracker.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 
-@EnableScheduling
-@Service
-public class TelegramBotNotifierServiceImpl implements TelegramBotNotifierService {
-
+@Component
+public class TelegramUserNotificationListener implements EventListener {
     @Autowired
     private TelegramUserService telegramUserService;
 
     @Override
-    public void notifyTelegramUsers(SiteGroup siteGroup) {
+    public void update(SiteGroup siteGroup) {
         List<TelegramUser> telegramUserList = telegramUserService.findAllTelegramUsersEnabledIs(true);
 
         for (TelegramUser telegramUser : telegramUserList) {
@@ -48,5 +45,4 @@ public class TelegramBotNotifierServiceImpl implements TelegramBotNotifierServic
             }
         });
     }
-
 }

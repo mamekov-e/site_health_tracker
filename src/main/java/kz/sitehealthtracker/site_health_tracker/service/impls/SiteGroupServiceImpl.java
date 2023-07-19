@@ -7,9 +7,8 @@ import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.repository.SiteGroupRepository;
-import kz.sitehealthtracker.site_health_tracker.service.EmailNotifierService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
-import kz.sitehealthtracker.site_health_tracker.service.TelegramBotNotifierService;
+import kz.sitehealthtracker.site_health_tracker.notifier.EventNotifier;
 import kz.sitehealthtracker.site_health_tracker.utils.ConverterUtil;
 import kz.sitehealthtracker.site_health_tracker.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +25,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     private SiteGroupRepository siteGroupRepository;
 
     @Autowired
-    private EmailNotifierService emailNotifierService;
-
-    @Autowired
-    private TelegramBotNotifierService telegramBotNotifierService;
+    private EventNotifier eventNotifier;
 
     @Override
     public List<SiteGroup> getAllSitesOfGroup() {
@@ -128,8 +124,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         if (!siteGroupStatus.equals(oldStatus)) {
             siteGroup.setStatus(siteGroupStatus);
             siteGroupRepository.save(siteGroup);
-            emailNotifierService.notifySubscribers(siteGroup);
-            telegramBotNotifierService.notifyTelegramUsers(siteGroup);
+            eventNotifier.notifyAll(siteGroup);
             System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
         } else {
             System.out.println("Checked all sites and group status stayed the same");
@@ -142,7 +137,6 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
         siteGroupRepository.deleteById(id);
     }
-
 
     @Override
     public void deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {
