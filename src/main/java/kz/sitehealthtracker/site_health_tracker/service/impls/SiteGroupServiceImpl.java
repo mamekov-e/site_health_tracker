@@ -6,9 +6,9 @@ import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
 import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
+import kz.sitehealthtracker.site_health_tracker.notifier.EventNotifier;
 import kz.sitehealthtracker.site_health_tracker.repository.SiteGroupRepository;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
-import kz.sitehealthtracker.site_health_tracker.notifier.EventNotifier;
 import kz.sitehealthtracker.site_health_tracker.utils.ConverterUtil;
 import kz.sitehealthtracker.site_health_tracker.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         }
 
         siteGroup.addSites(sitesOfGroup);
-        updateGroupStatus(siteGroup);
+        saveGroupChangesIfGroupStatusWasNotChanged(siteGroup);
     }
 
     @Transactional
@@ -99,7 +99,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
-    public void updateGroupStatus(SiteGroup siteGroup) {
+    public boolean updateGroupStatus(SiteGroup siteGroup) {
         List<Site> sitesOfGroup = siteGroup.getSites();
         System.out.printf("All sites of %s group: %s\n", siteGroup.getName(), sitesOfGroup);
         SiteGroupStatus siteGroupStatus;
@@ -120,14 +120,25 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                 siteGroupStatus = SiteGroupStatus.PARTIAL_UP;
             }
         }
-        SiteGroupStatus oldStatus = siteGroup.getStatus();
+        final SiteGroupStatus oldStatus = siteGroup.getStatus();
+
         if (!siteGroupStatus.equals(oldStatus)) {
             siteGroup.setStatus(siteGroupStatus);
             siteGroupRepository.save(siteGroup);
             eventNotifier.notifyAll(siteGroup);
             System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
+            return true;
         } else {
-            System.out.println("Checked all sites and group status stayed the same");
+            System.out.println("Checked all sites and group status was not changed");
+            return false;
+        }
+    }
+
+    @Override
+    public void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup) {
+        boolean siteGroupStatusUpdated = updateGroupStatus(siteGroup);
+        if (!siteGroupStatusUpdated) {
+            siteGroupRepository.save(siteGroup);
         }
     }
 
@@ -159,7 +170,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
         if (!sitesOfGroupInDb.isEmpty()) {
             siteGroup.removeSites(sitesOfGroup);
-            updateGroupStatus(siteGroup);
+            saveGroupChangesIfGroupStatusWasNotChanged(siteGroup);
         }
     }
 

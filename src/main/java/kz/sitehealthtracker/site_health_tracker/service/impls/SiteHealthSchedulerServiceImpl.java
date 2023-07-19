@@ -110,8 +110,7 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
 
     public void updateScheduledTask(Site oldSite, Site site) {
         System.out.println("UPDATE----------------------------------");
-        if (!Objects.equals(oldSite.getUrl(), site.getUrl()) ||
-                !Objects.equals(oldSite.getSiteHealthCheckInterval(), site.getSiteHealthCheckInterval())) {
+        if (!Objects.equals(oldSite,site)) {
             deleteScheduledTask(oldSite);
             addScheduledTask(site);
             System.out.println("Updated ---------------------------");
@@ -122,14 +121,10 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
 
     public void deleteScheduledTask(Site site) {
         System.out.println("DELETE----------------------------------");
-        stopScheduledTask(site);
-        scheduledTasks.remove(site);
-    }
-
-    private void stopScheduledTask(Site site) {
         ScheduledFuture<?> scheduledTask = scheduledTasks.get(site);
         if (scheduledTask != null) {
             scheduledTask.cancel(true);
         }
+        scheduledTasks.remove(site);
     }
 }

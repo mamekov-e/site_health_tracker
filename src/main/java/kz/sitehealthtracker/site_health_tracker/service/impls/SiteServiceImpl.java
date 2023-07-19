@@ -52,17 +52,19 @@ public class SiteServiceImpl implements SiteService {
 
     @Override
     public Site updateSite(Site updatedSite) {
-        Site siteInDb = getSiteById(updatedSite.getId());
+        final Site siteInDb = getSiteById(updatedSite.getId());
 
         boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
         if (siteUpdatedUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
         }
 
-        siteHealthSchedulerService.updateScheduledTask(siteInDb, updatedSite);
 
         updatedSite.setStatus(siteInDb.getStatus());
         updatedSite.setGroups(siteInDb.getGroups());
+        System.out.println("updatedSite: " + updatedSite);
+        System.out.println("siteInDb: " + siteInDb);
+        siteHealthSchedulerService.updateScheduledTask(siteInDb, updatedSite);
 
         return siteRepository.save(updatedSite);
     }
@@ -80,7 +82,7 @@ public class SiteServiceImpl implements SiteService {
         List<SiteGroup> siteGroups = site.getGroups();
         for (SiteGroup group : siteGroups) {
             group.getSites().remove(site);
-            siteGroupService.updateGroupStatus(group);
+            siteGroupService.saveGroupChangesIfGroupStatusWasNotChanged(group);
         }
         siteHealthSchedulerService.deleteScheduledTask(site);
         siteRepository.deleteById(id);

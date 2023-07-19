@@ -18,7 +18,9 @@ public interface SiteGroupService {
 
     SiteGroup updateSiteGroup(SiteGroup siteGroup);
 
-    void updateGroupStatus(SiteGroup siteGroup);
+    boolean updateGroupStatus(SiteGroup siteGroup);
+
+    void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup);
 
     void deleteSiteGroupById(Long id);
 
