@@ -1,12 +1,16 @@
 package kz.sitehealthtracker.site_health_tracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
+import kz.sitehealthtracker.site_health_tracker.model.statuses.SiteStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +19,11 @@ import java.util.Objects;
 @Table(name = "sites")
 @Data
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties(value = {"groups"})
 public class Site extends BaseEntity<Long> {
+    @Serial
+    private static final long serialVersionUID = 1128829114369223468L;
     @Column(name = "name")
     private String name;
     @Column(name = "description")
@@ -28,7 +36,7 @@ public class Site extends BaseEntity<Long> {
     @Column(name = "status", columnDefinition = "site_status")
     @Type(PostgreSQLEnumType.class)
     private SiteStatus status;
-    @ManyToMany(mappedBy = "sites", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "sites")
     private List<SiteGroup> groups = new ArrayList<>();
 
     @Override
@@ -55,7 +63,6 @@ public class Site extends BaseEntity<Long> {
                 ", url='" + url + '\'' +
                 ", siteHealthCheckInterval=" + siteHealthCheckInterval +
                 ", status=" + status +
-                ", groups=" + groups +
                 '}';
     }
 }

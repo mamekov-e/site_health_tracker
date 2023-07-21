@@ -3,7 +3,7 @@ package kz.sitehealthtracker.site_health_tracker.service.impls;
 import jakarta.annotation.PostConstruct;
 import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
+import kz.sitehealthtracker.site_health_tracker.model.statuses.SiteStatus;
 import kz.sitehealthtracker.site_health_tracker.service.SiteGroupService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteHealthSchedulerService;
 import kz.sitehealthtracker.site_health_tracker.service.SiteService;
@@ -76,7 +76,7 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
         }
 
         if (siteStatusChanged) {
-            List<SiteGroup> siteGroups = siteInDb.getGroups();
+            List<SiteGroup> siteGroups = siteGroupService.getAllSiteGroupsBySite(siteInDb);
             System.out.println("site: " + siteInDb);
             System.out.println("site groups list: " + siteGroups);
             if (!siteGroups.isEmpty()) {
@@ -110,7 +110,7 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
 
     public void updateScheduledTask(Site oldSite, Site site) {
         System.out.println("UPDATE----------------------------------");
-        if (!Objects.equals(oldSite,site)) {
+        if (!Objects.equals(oldSite, site)) {
             deleteScheduledTask(oldSite);
             addScheduledTask(site);
             System.out.println("Updated ---------------------------");

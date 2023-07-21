@@ -20,8 +20,8 @@ public class SiteGroupController {
     private SiteGroupService siteGroupService;
 
     @GetMapping
-    public ResponseEntity<List<SiteGroupDto>> getAllSitesOfGroup() {
-        List<SiteGroup> sitesGroup = siteGroupService.getAllSitesOfGroup();
+    public ResponseEntity<List<SiteGroupDto>> getAllSiteGroups() {
+        List<SiteGroup> sitesGroup = siteGroupService.getAllSiteGroups();
         List<SiteGroupDto> siteGroupsDto = ConverterUtil.convertList(sitesGroup, SiteGroupDto.class);
         return ResponseEntity.ok(siteGroupsDto);
     }

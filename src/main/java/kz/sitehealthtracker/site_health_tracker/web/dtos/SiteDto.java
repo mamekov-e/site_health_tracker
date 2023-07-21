@@ -1,6 +1,6 @@
 package kz.sitehealthtracker.site_health_tracker.web.dtos;
 
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
+import kz.sitehealthtracker.site_health_tracker.model.statuses.SiteStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

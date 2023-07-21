@@ -1,7 +1,7 @@
 package kz.sitehealthtracker.site_health_tracker.repository;
 
 import kz.sitehealthtracker.site_health_tracker.model.Site;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteStatus;
+import kz.sitehealthtracker.site_health_tracker.model.statuses.SiteStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

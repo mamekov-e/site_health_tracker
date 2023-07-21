@@ -10,7 +10,7 @@ public interface EmailService {
 
     Email registerEmailToNotifier(String address);
 
-    void unregisterEmailFromNotifier(String address);
+    boolean unregisterEmailFromNotifier(String address);
 
     void deleteAllByEnabledFalseAndCodeExpirationTimeBefore(LocalDateTime currentTime);
 

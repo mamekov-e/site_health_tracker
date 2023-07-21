@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,6 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Email extends BaseEntity<Long> {
+    @Serial
+    private static final long serialVersionUID = -1787133761590176647L;
     @Column(name = "address")
     private String address;
     @Column(name = "verification_code")

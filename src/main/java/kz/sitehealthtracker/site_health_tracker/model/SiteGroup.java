@@ -1,12 +1,16 @@
 package kz.sitehealthtracker.site_health_tracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
+import kz.sitehealthtracker.site_health_tracker.model.statuses.SiteGroupStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +19,11 @@ import java.util.Objects;
 @Table(name = "site_groups")
 @Data
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties(value = {"sites"})
 public class SiteGroup extends BaseEntity<Long> {
+    @Serial
+    private static final long serialVersionUID = -4641758150802733484L;
     @Column(name = "name")
     private String name;
     @Column(name = "description")
@@ -24,7 +32,7 @@ public class SiteGroup extends BaseEntity<Long> {
     @Column(name = "status")
     @Type(PostgreSQLEnumType.class)
     private SiteGroupStatus status;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))

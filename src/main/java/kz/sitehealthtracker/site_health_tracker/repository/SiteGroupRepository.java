@@ -1,12 +1,17 @@
 package kz.sitehealthtracker.site_health_tracker.repository;
 
+import kz.sitehealthtracker.site_health_tracker.model.Site;
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface SiteGroupRepository extends JpaRepository<SiteGroup, Long> {
+
+    List<SiteGroup> findAllBySitesIn(List<Site> sites);
 
     boolean existsSiteGroupsByNameIsIgnoreCase(String name);
 

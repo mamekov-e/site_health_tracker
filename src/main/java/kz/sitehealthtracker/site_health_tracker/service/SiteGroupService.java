@@ -6,15 +6,17 @@ import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
 import java.util.List;
 
 public interface SiteGroupService {
-    List<SiteGroup> getAllSitesOfGroup();
+    List<SiteGroup> getAllSiteGroups();
+
+    List<SiteGroup> getAllSiteGroupsBySite(Site site);
 
     List<Site> getAllGroupSitesById(Long id);
 
     SiteGroup getSiteGroupById(Long id);
 
-    void addSiteGroup(SiteGroup siteGroup);
+    boolean addSiteGroup(SiteGroup siteGroup);
 
-    void addSitesToGroupById(List<Site> sitesOfGroup, Long id);
+    boolean addSitesToGroupById(List<Site> sitesOfGroup, Long id);
 
     SiteGroup updateSiteGroup(SiteGroup siteGroup);
 
@@ -22,8 +24,8 @@ public interface SiteGroupService {
 
     void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup);
 
-    void deleteSiteGroupById(Long id);
+    boolean deleteSiteGroupById(Long id);
 
-    void deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id);
+    boolean deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id);
 
 }

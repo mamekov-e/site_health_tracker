@@ -8,12 +8,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Entity
 @Table(name = "telegram_users")
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode
-public class TelegramUser {
+public class TelegramUser implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -4424021175421850963L;
     @Id
     private Long id;
     @Column(name = "username")

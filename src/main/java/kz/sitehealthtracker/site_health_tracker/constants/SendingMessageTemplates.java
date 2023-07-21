@@ -1,7 +1,7 @@
 package kz.sitehealthtracker.site_health_tracker.constants;
 
 import kz.sitehealthtracker.site_health_tracker.model.SiteGroup;
-import kz.sitehealthtracker.site_health_tracker.model.enums.SiteGroupStatus;
+import kz.sitehealthtracker.site_health_tracker.model.statuses.SiteGroupStatus;
 
 public class SendingMessageTemplates {
     public static final String EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE = "Привествуем Вас!<br>" +
@@ -30,6 +30,6 @@ public class SendingMessageTemplates {
         String delimitersReplacedTemplate = GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE
                 .replaceAll(Delimiters.REPLACING_DELIMITER.DELIMITER, delimiter.DELIMITER);
 
-        return String.format(delimitersReplacedTemplate, groupName, newGroupStatus.STATUS_VALUE);
+        return String.format(delimitersReplacedTemplate, groupName, newGroupStatus.getStatusValue());
     }
 }
