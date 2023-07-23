@@ -5,23 +5,35 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteServi
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/sites")
+@CrossOrigin(origins = "http://localhost:3000")
 public class SiteController {
     @Autowired
     private SiteService siteService;
 
     @GetMapping
-    public ResponseEntity<List<SiteDto>> getAllSites() {
-        List<Site> sites = siteService.getAllSites();
-        List<SiteDto> sitesDto = sites.stream()
-                .map(site -> ConverterUtil.convertObject(site, SiteDto.class)).toList();
+    public ResponseEntity<Page<SiteDto>> getAllSitesInPage(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize,
+                sortDir.equalsIgnoreCase(Sort.Direction.ASC.toString()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+
+        Page<Site> sites = siteService.getAllSiteInPage(pageRequest);
+        Page<SiteDto> sitesDto = ConverterUtil.convertPage(sites, SiteDto.class);
+        return ResponseEntity.ok(sitesDto);
+    }
+
+    @GetMapping("/search/{searchText}")
+    public ResponseEntity<Page<SiteDto>> getAllSitesInPageWithSearch(Pageable pageable, @PathVariable("searchText") String searchText) {
+        Page<Site> sites = siteService.getAllSiteInPageWithSearchText(pageable, searchText);
+        Page<SiteDto> sitesDto = ConverterUtil.convertPage(sites, SiteDto.class);
         return ResponseEntity.ok(sitesDto);
     }
 
@@ -36,7 +48,7 @@ public class SiteController {
     public ResponseEntity<Long> addSite(@RequestBody SiteDto siteDto) {
         Site site = ConverterUtil.convertObject(siteDto, Site.class);
         siteService.addSite(site);
-        return new ResponseEntity<>(site.getId(),HttpStatus.CREATED);
+        return new ResponseEntity<>(site.getId(), HttpStatus.CREATED);
     }
 
     @PutMapping

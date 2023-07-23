@@ -14,9 +14,13 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.*;
@@ -33,6 +37,19 @@ public class SiteServiceImpl implements SiteService {
     @Autowired
     private SiteHealthSchedulerService siteHealthSchedulerService;
 
+    @Override
+    public Page<Site> getAllSiteInPageWithSearchText(Pageable pageable, String searchText) {
+        String trimmedSearchText = searchText.trim();
+        if (trimmedSearchText.isBlank()) {
+            return new PageImpl<>(new ArrayList<>());
+        }
+        return siteRepository.findAllInPageWithSearchText(pageable, trimmedSearchText);
+    }
+
+    @Override
+    public Page<Site> getAllSiteInPage(Pageable pageable) {
+        return siteRepository.findAll(pageable);
+    }
 
     @Cacheable(cacheNames = SITES_CACHE_NAME)
     @Override
@@ -121,5 +138,4 @@ public class SiteServiceImpl implements SiteService {
         siteRepository.deleteById(id);
         return true;
     }
-
 }

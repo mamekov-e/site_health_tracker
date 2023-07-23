@@ -16,6 +16,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,20 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Autowired
     private EventNotifier eventNotifier;
+
+    @Override
+    public Page<SiteGroup> getAllSiteGroupsInPageWithSearchText(Pageable pageable, String searchText) {
+        String trimmedSearchText = searchText.trim();
+        if (trimmedSearchText.isBlank()) {
+            return new PageImpl<>(new ArrayList<>());
+        }
+        return siteGroupRepository.findAllInPageWithSearchText(pageable, trimmedSearchText);
+    }
+
+    @Override
+    public Page<SiteGroup> getAllSiteGroupsInPage(Pageable pageable) {
+        return siteGroupRepository.findAll(pageable);
+    }
 
     @Cacheable(cacheNames = SITE_GROUPS_CACHE_NAME)
     @Override
