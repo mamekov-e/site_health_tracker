@@ -7,10 +7,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUt
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteGroupDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,10 +46,28 @@ public class SiteGroupController {
     }
 
     @GetMapping("/{groupId}/sites")
-    public ResponseEntity<List<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id) {
+    public ResponseEntity<Page<SiteDto>> getAllGroupSitesById(@PathVariable("groupId") Long id,
+                                                              int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize,
+                sortDir.equalsIgnoreCase(Sort.Direction.ASC.toString()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+
         List<Site> sitesGroup = siteGroupService.getAllGroupSitesById(id);
-        List<SiteDto> sitesGroupDto = ConverterUtil.convertList(sitesGroup, SiteDto.class);
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), sitesGroup.size());
+
+        List<Site> pageContent = sitesGroup.subList(start, end);
+        Page<Site> page = new PageImpl<>(pageContent, pageRequest, sitesGroup.size());
+        Page<SiteDto> sitesGroupDto = ConverterUtil.convertPage(page, SiteDto.class);
         return ResponseEntity.ok(sitesGroupDto);
+    }
+
+    @GetMapping("/{groupId}/sites/search/{searchText}")
+    public ResponseEntity<Page<SiteDto>> getAllGroupSitesInPageWithSearch(Pageable pageable,
+                                                                          @PathVariable("groupId") Long id,
+                                                                          @PathVariable("searchText") String searchText) {
+        Page<Site> sites = siteGroupService.getAllSitesOfGroupByIdInPageWithSearchText(id, pageable, searchText);
+        Page<SiteDto> sitesDto = ConverterUtil.convertPage(sites, SiteDto.class);
+        return ResponseEntity.ok(sitesDto);
     }
 
     @PostMapping

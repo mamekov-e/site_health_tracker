@@ -9,6 +9,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.Si
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventNotifier;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.SiteGroupRepository;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,24 +36,25 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Autowired
     private EventNotifier eventNotifier;
 
+    @Autowired
+    private SiteService siteService;
+
     @Override
     public Page<SiteGroup> getAllSiteGroupsInPageWithSearchText(Pageable pageable, String searchText) {
-        String trimmedSearchText = searchText.trim();
-        if (trimmedSearchText.isBlank()) {
-            return new PageImpl<>(new ArrayList<>());
-        }
-        return siteGroupRepository.findAllInPageWithSearchText(pageable, trimmedSearchText);
+        return siteGroupRepository.findAllInPageWithSearchText(pageable, searchText);
+    }
+
+    @Override
+    public Page<Site> getAllSitesOfGroupByIdInPageWithSearchText(Long id, Pageable pageable, String searchText) {
+        SiteGroup siteGroup = siteGroupRepository.findById(id)
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+
+        return siteService.getAllGroupSitesInPageWithSearchText(siteGroup.getId(), pageable, searchText);
     }
 
     @Override
     public Page<SiteGroup> getAllSiteGroupsInPage(Pageable pageable) {
         return siteGroupRepository.findAll(pageable);
-    }
-
-    @Cacheable(cacheNames = SITE_GROUPS_CACHE_NAME)
-    @Override
-    public List<SiteGroup> getAllSiteGroups() {
-        return siteGroupRepository.findAll();
     }
 
     @Cacheable(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#site.id")
@@ -69,13 +70,13 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
     }
 
-    @Cacheable(cacheNames = SITES_CACHE_NAME, key = "#id")
+//    @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     @Override
     public List<Site> getAllGroupSitesById(Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
 
-        return siteGroup.getSites();
+        return  siteGroup.getSites();
     }
 
 
@@ -95,8 +96,8 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Caching(evict = {
             @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = SITES_CACHE_NAME, key = "#id", condition = "#result == true")
+            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     })
     @Override
     public boolean addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
@@ -206,7 +207,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Caching(evict = {
             @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = SITES_CACHE_NAME, key = "#id", condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true")
     })
     @Override
@@ -219,9 +220,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
-            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = SITES_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true")
+            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     })
     @Override
     public boolean deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {

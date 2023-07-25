@@ -15,12 +15,10 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.*;
@@ -39,11 +37,12 @@ public class SiteServiceImpl implements SiteService {
 
     @Override
     public Page<Site> getAllSiteInPageWithSearchText(Pageable pageable, String searchText) {
-        String trimmedSearchText = searchText.trim();
-        if (trimmedSearchText.isBlank()) {
-            return new PageImpl<>(new ArrayList<>());
-        }
-        return siteRepository.findAllInPageWithSearchText(pageable, trimmedSearchText);
+        return siteRepository.findAllInPageWithSearchText(pageable, searchText);
+    }
+
+    @Override
+    public Page<Site> getAllGroupSitesInPageWithSearchText(Long siteGroupId, Pageable pageable, String searchText) {
+        return siteRepository.findAllGroupSitesInPageWithSearchText(siteGroupId, pageable, searchText);
     }
 
     @Override

@@ -10,6 +10,8 @@ import java.util.List;
 public interface SiteService {
     Page<Site> getAllSiteInPageWithSearchText(Pageable pageable, String searchText);
 
+    Page<Site> getAllGroupSitesInPageWithSearchText(Long siteGroupId, Pageable pageable, String searchText);
+
     Page<Site> getAllSiteInPage(Pageable pageable);
 
     List<Site> getAllSites();

@@ -12,11 +12,11 @@ public interface SiteGroupService {
 
     Page<SiteGroup> getAllSiteGroupsInPage(Pageable pageable);
 
-    List<SiteGroup> getAllSiteGroups();
-
     List<SiteGroup> getAllSiteGroupsBySite(Site site);
 
     List<Site> getAllGroupSitesById(Long id);
+
+    Page<Site> getAllSitesOfGroupByIdInPageWithSearchText(Long id, Pageable pageable, String searchText);
 
     SiteGroup getSiteGroupById(Long id);
 

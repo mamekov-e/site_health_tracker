@@ -32,7 +32,7 @@ public class SiteGroup extends BaseEntity<Long> {
     @Column(name = "status")
     @Type(PostgreSQLEnumType.class)
     private SiteGroupStatus status;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))

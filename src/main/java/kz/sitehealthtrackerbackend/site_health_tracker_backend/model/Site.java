@@ -31,7 +31,7 @@ public class Site extends BaseEntity<Long> {
     @Column(name = "url", unique = true)
     private String url;
     @Column(name = "site_health_check_interval")
-    private Integer siteHealthCheckInterval;
+    private Long siteHealthCheckInterval;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "site_status")
     @Type(PostgreSQLEnumType.class)
