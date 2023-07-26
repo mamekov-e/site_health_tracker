@@ -18,7 +18,7 @@ public class EmailNotifierController {
     @Autowired
     private EmailNotificationListener emailNotificationListener;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<Long> registerEmailToNotifier(@RequestParam("email-address") String address, HttpServletRequest request) {
         String urlPath = request.getRequestURL().toString();
         Email registeredEmail = emailService.registerEmailToNotifier(address);
@@ -26,13 +26,13 @@ public class EmailNotifierController {
         return new ResponseEntity<>(registeredEmail.getId(), HttpStatus.CREATED);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> unregisterEmailFromNotifier(@RequestParam("email-address") String address) {
+    @PostMapping("/unregister")
+    public ResponseEntity<String> unregisterEmailFromNotifier(@RequestParam("email-address") String address) {
         emailService.unregisterEmailFromNotifier(address);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(address, HttpStatus.OK);
     }
 
-    @GetMapping("/verify")
+    @GetMapping("/register/verify")
     public String verifyEmail(@RequestParam("code") String code) {
         boolean verified = emailService.verify(code);
 
