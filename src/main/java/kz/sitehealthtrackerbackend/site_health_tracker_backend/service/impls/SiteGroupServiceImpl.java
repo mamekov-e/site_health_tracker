@@ -2,6 +2,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.service.impls;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.NotFoundException;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityNames;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteGroupStatus;
@@ -47,7 +48,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public Page<Site> getAllSitesOfGroupByIdInPageWithSearchText(Long id, Pageable pageable, String searchText) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         return siteService.getAllGroupSitesInPageWithSearchText(siteGroup.getId(), pageable, searchText);
     }
@@ -67,14 +68,14 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public SiteGroup getSiteGroupById(Long id) {
         return siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
     }
 
 //    @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     @Override
     public List<Site> getAllGroupSitesById(Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         return  siteGroup.getSites();
     }
@@ -85,7 +86,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     public boolean addSiteGroup(SiteGroup siteGroup) {
         boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIsIgnoreCase(siteGroup.getName());
         if (siteGroupNameAlreadyExist) {
-            throw BadRequestException.entityWithFieldValueAlreadyExist(SiteGroup.class.getSimpleName(), siteGroup.getName());
+            throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE_GROUP.getName(), siteGroup.getName());
         }
 
         siteGroup.setStatus(SiteGroupStatus.NO_SITES);
@@ -102,7 +103,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public boolean addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         List<Site> alreadyExistingSites = new ArrayList<>();
         List<Site> siteOfGroupInDb = siteGroup.getSites();
@@ -114,7 +115,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         if (!alreadyExistingSites.isEmpty()) {
             List<SiteDto> alreadyExistingSitesDto = ConverterUtil.convertList(alreadyExistingSites, SiteDto.class);
             throw BadRequestException
-                    .entityCollectionWithElementsFailedByExistence(Site.class.getSimpleName(), alreadyExistingSitesDto, true);
+                    .entityCollectionWithElementsFailedByExistence(EntityNames.SITE.getName(), alreadyExistingSitesDto, true);
         }
 
         siteGroup.addSites(sitesOfGroup);
@@ -136,7 +137,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                 .existsSiteGroupsByNameAndIdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId());
         if (siteUpdatedNameAlreadyExist) {
             throw BadRequestException
-                    .entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSiteGroup.getName());
+                    .entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSiteGroup.getName());
         }
 
         updatedSiteGroup.setStatus(siteGroupInDb.getStatus());
@@ -227,7 +228,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public boolean deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         List<Site> nonExistentSites = new ArrayList<>();
         List<Site> sitesOfGroupInDb = siteGroup.getSites();
@@ -240,7 +241,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         if (!nonExistentSites.isEmpty()) {
             List<SiteDto> nonExistentSitesDto = ConverterUtil.convertList(nonExistentSites, SiteDto.class);
             throw BadRequestException
-                    .entityCollectionWithElementsFailedByExistence(Site.class.getSimpleName(), nonExistentSitesDto, false);
+                    .entityCollectionWithElementsFailedByExistence(EntityNames.SITE.getName(), nonExistentSitesDto, false);
         }
 
 
@@ -255,7 +256,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     private boolean checkIfSiteGroupExistById(Long id) {
         boolean siteGroupExist = siteGroupRepository.existsById(id);
         if (!siteGroupExist) {
-            throw NotFoundException.entityNotFoundById(SiteGroup.class.getSimpleName(), id);
+            throw NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id);
         }
         return true;
     }

@@ -2,6 +2,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.service.impls;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.NotFoundException;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityNames;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Email;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.EmailRepository;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
@@ -52,7 +53,7 @@ public class EmailServiceImpl implements EmailService {
         Email email = emailRepository.findByAddress(address).orElse(new Email());
 
         if (email.getId() != null && email.isEnabled()) {
-            throw BadRequestException.entityWithFieldValueAlreadyExist(Email.class.getSimpleName(), address);
+            throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.EMAIL.getName(), address);
         }
 
         String randomCode = RandomString.make(RANDOM__VERIFICATION_CODE_LENGTH);
@@ -69,7 +70,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public boolean unregisterEmailFromNotifier(String address) {
         Email email = emailRepository.findByAddress(address)
-                .orElseThrow(() -> NotFoundException.entityNotFoundBy(Email.class.getSimpleName(), address));
+                .orElseThrow(() -> NotFoundException.entityNotFoundBy(EntityNames.EMAIL.getName(), address));
 
         emailRepository.delete(email);
         return true;

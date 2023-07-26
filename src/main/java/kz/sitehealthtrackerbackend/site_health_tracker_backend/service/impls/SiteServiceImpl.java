@@ -2,6 +2,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.service.impls;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.NotFoundException;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityNames;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteStatus;
@@ -60,7 +61,7 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public Site getSiteById(Long id) {
         return siteRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(Site.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
     }
 
     @CacheEvict(cacheNames = SITES_CACHE_NAME, allEntries = true)
@@ -68,7 +69,7 @@ public class SiteServiceImpl implements SiteService {
     public void addSite(Site site) {
         boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIsIgnoreCase(site.getUrl());
         if (siteUrlAlreadyExist) {
-            throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), site.getUrl());
+            throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getUrl());
         }
         site.setStatus(SiteStatus.DOWN);
         Site siteSaved = siteRepository.save(site);
@@ -84,11 +85,11 @@ public class SiteServiceImpl implements SiteService {
     public Site updateSite(Site updatedSite) {
         long updatedSiteId = updatedSite.getId();
         final Site siteInDb = siteRepository.findById(updatedSiteId)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(Site.class.getSimpleName(), updatedSiteId));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), updatedSiteId));
 
         boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSiteId);
         if (siteUpdatedUrlAlreadyExist) {
-            throw BadRequestException.entityWithFieldValueAlreadyExist(Site.class.getSimpleName(), updatedSite.getUrl());
+            throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getUrl());
         }
 
 
@@ -125,7 +126,7 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public boolean deleteSiteById(Long id) {
         Site site = siteRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(Site.class.getSimpleName(), id));
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
 
         List<SiteGroup> siteGroups = site.getGroups();
         System.out.println("siteGroups : getAllSiteGroupsBySiteId = " + siteGroups);

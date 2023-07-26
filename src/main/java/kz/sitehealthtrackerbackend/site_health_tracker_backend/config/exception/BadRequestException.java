@@ -13,15 +13,15 @@ public class BadRequestException extends BaseException {
     }
 
     public static BadRequestException entityWithFieldValueAlreadyExist(String entityName, String fieldValue) {
-        return new BadRequestException(String.format("entity-%s-with-field-value-`%s`-already-exist", entityName, fieldValue));
+        return new BadRequestException(String.format("%s со значением поля `%s` уже существует", entityName, fieldValue));
     }
 
     public static BadRequestException entityCollectionWithElementsFailedByExistence(String entityName, Object body, boolean exist) {
-        String existOrNotValue = exist ? "already" : "does-not";
-        return new BadRequestException(String.format("entity-collection-%s-with-elements-%s-exist", entityName, existOrNotValue), body);
+        String existOrNotValue = exist ? "уже" : "не";
+        return new BadRequestException(String.format("%s со списком выбранных элементов %s существует", entityName, existOrNotValue), body);
     }
 
     public static BadRequestException sendingMessageToEmailAddressFailed(String address) {
-        return new BadRequestException(String.format("sending-message-to-%s-failed", address));
+        return new BadRequestException(String.format("Отправка сообщения по адресу %s не удалась", address));
     }
 }
