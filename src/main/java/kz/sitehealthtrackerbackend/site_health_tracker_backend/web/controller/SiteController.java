@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/sites")
-@CrossOrigin(origins = "http://localhost:3000")
 public class SiteController {
     @Autowired
     private SiteService siteService;

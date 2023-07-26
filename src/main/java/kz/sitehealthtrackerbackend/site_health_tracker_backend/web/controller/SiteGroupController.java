@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/site-groups")
-@CrossOrigin(origins = "http://localhost:3000")
 public class SiteGroupController {
     @Autowired
     private SiteGroupService siteGroupService;
@@ -77,7 +76,7 @@ public class SiteGroupController {
         return new ResponseEntity<>(siteGroup.getId(), HttpStatus.CREATED);
     }
 
-    @PostMapping("/{groupId}/sites")
+    @PostMapping("/{groupId}/sites/add")
     public ResponseEntity<Void> addSitesToGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
         List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
 
@@ -99,7 +98,7 @@ public class SiteGroupController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{groupId}/sites")
+    @PostMapping("/{groupId}/sites/delete")
     public ResponseEntity<Void> deleteSitesFromGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
         List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
 
