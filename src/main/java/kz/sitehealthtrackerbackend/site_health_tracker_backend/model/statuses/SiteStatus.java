@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum SiteStatus {
     UP("Доступен"),
     DELETED_FROM_GROUP("Удален из группы"),
+    DELETED("Удален"),
     ADDED_TO_GROUP("Добавился в группу"),
     DOWN("Недоступен");
 

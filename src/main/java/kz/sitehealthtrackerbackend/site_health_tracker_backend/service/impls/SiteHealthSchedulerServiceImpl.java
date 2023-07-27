@@ -10,6 +10,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroup
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteHealthSchedulerService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.HttpConnectionUtil;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -87,9 +88,10 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
             List<SiteGroup> siteGroups = siteGroupService.getAllSiteGroupsBySite(siteInDb);
             System.out.println("site: " + siteInDb);
             System.out.println("site groups list: " + siteGroups);
+            SiteDto siteWithChangedStatus = new SiteDto(siteInDb.getName(), siteInDb.getStatus());
             if (!siteGroups.isEmpty()) {
                 for (SiteGroup siteGroup : siteGroups) {
-                    siteGroupService.updateGroupStatus(siteGroup, siteInDb);
+                    siteGroupService.updateGroupStatus(siteGroup, siteWithChangedStatus);
                 }
             }
         } else {

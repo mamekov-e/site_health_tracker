@@ -10,6 +10,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -43,7 +44,7 @@ public class EmailNotificationListener implements EventListener {
     }
 
     @Override
-    public void update(SiteGroup siteGroup, Site siteWithChangedStatus) {
+    public void update(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         List<Email> subscribersList = emailService.findAllByEnabledTrue();
 
         if (!subscribersList.isEmpty()) {

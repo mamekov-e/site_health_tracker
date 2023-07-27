@@ -3,6 +3,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.constants;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteGroupStatus;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 
 public class SendingMessageTemplates {
     public static final String EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE = "Привествуем Вас!<br>" +
@@ -26,7 +27,7 @@ public class SendingMessageTemplates {
             "С уважением,<d>" +
             "Site Health Tracker team.";
 
-    public static String groupStatusChangedTemplateWithDelimiter(SiteGroup siteGroup, Delimiters delimiter, Site siteWithChangedStatus) {
+    public static String groupStatusChangedTemplateWithDelimiter(SiteGroup siteGroup, Delimiters delimiter, SiteDto siteWithChangedStatus) {
         String groupName = siteGroup.getName();
         String newGroupStatus = siteGroup.getStatus().getStatusValue();
         String siteName = siteWithChangedStatus.getName();

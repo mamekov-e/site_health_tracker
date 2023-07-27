@@ -2,6 +2,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.service;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,9 +27,9 @@ public interface SiteGroupService {
 
     SiteGroup updateSiteGroup(SiteGroup siteGroup);
 
-    boolean updateGroupStatus(SiteGroup siteGroup, Site siteWithChangedStatus);
+    boolean updateGroupStatus(SiteGroup siteGroup, SiteDto siteWithChangedStatus);
 
-    void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup, Site siteWithChangedStatus);
+    void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup, SiteDto siteWithChangedStatus);
 
     boolean deleteSiteGroupById(Long id);
 

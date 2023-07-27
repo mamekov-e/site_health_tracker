@@ -10,6 +10,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.SiteRe
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteHealthSchedulerService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -132,8 +133,8 @@ public class SiteServiceImpl implements SiteService {
         System.out.println("siteGroups : getAllSiteGroupsBySiteId = " + siteGroups);
         for (SiteGroup group : siteGroups) {
             group.getSites().remove(site);
-            site.setStatus(SiteStatus.DELETED_FROM_GROUP);
-            siteGroupService.saveGroupChangesIfGroupStatusWasNotChanged(group, site);
+            SiteDto siteDeletedDto = new SiteDto(site.getName(), SiteStatus.DELETED);
+            siteGroupService.saveGroupChangesIfGroupStatusWasNotChanged(group, siteDeletedDto);
         }
         siteHealthSchedulerService.deleteScheduledTask(site);
         siteRepository.deleteById(id);

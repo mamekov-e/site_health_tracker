@@ -15,4 +15,9 @@ public class SiteDto {
     private String url;
     private Long siteHealthCheckInterval;
     private SiteStatus status;
+
+    public SiteDto(String name, SiteStatus status) {
+        this.name = name;
+        this.status = status;
+    }
 }

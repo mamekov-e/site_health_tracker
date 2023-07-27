@@ -119,9 +119,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         }
 
         siteGroup.addSites(sites);
-        Site siteAdded = sites.get(0);
-        siteAdded.setStatus(SiteStatus.ADDED_TO_GROUP);
-        saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, sites.get(0));
+        Site siteAddedToGroup = sites.get(0);
+        SiteDto siteAddedToGroupDto = new SiteDto(siteAddedToGroup.getName(), SiteStatus.ADDED_TO_GROUP);
+        saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, siteAddedToGroupDto);
         return true;
     }
 
@@ -157,7 +157,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id", condition = "#result == true")
     })
     @Override
-    public boolean updateGroupStatus(SiteGroup siteGroup, Site siteWithChangedStatus) {
+    public boolean updateGroupStatus(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         List<Site> sitesOfGroup = getAllGroupSitesById(siteGroup.getId());
         System.out.printf("All sites of %s group: %s\n", siteGroup.getName(), sitesOfGroup);
         SiteGroupStatus siteGroupStatus;
@@ -200,7 +200,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id")
     })
     @Override
-    public void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup, Site siteWithChangedStatus) {
+    public void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         boolean siteGroupStatusUpdated = updateGroupStatus(siteGroup, siteWithChangedStatus);
         if (!siteGroupStatusUpdated) {
             siteGroupRepository.save(siteGroup);
@@ -249,7 +249,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
         if (!sitesOfGroupInDb.isEmpty()) {
             siteGroup.removeSites(sites);
-            saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, sites.get(0));
+            Site siteDeletedFromGroup = sites.get(0);
+            SiteDto siteDeletedFromGroupDto = new SiteDto(siteDeletedFromGroup.getName(), SiteStatus.DELETED_FROM_GROUP);
+            saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, siteDeletedFromGroupDto);
             return true;
         }
         return false;

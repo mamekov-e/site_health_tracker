@@ -5,6 +5,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.listeners.EmailNotificationListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.listeners.TelegramUserNotificationListener;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +36,7 @@ public class EventNotifier {
         eventListeners.remove(service);
     }
 
-    public void notifyAll(SiteGroup siteGroup, Site siteWithChangedStatus) {
+    public void notifyAll(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         for (EventListener service : eventListeners) {
             service.update(siteGroup, siteWithChangedStatus);
         }

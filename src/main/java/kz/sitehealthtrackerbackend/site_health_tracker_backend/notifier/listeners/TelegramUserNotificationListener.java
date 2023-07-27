@@ -8,6 +8,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.TelegramUser;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.TelegramUserService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
@@ -22,7 +23,7 @@ public class TelegramUserNotificationListener implements EventListener {
     private TelegramUserService telegramUserService;
 
     @Override
-    public void update(SiteGroup siteGroup, Site siteWithChangedStatus) {
+    public void update(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         List<TelegramUser> telegramUserList = telegramUserService.findAllTelegramUsersEnabledIs(true);
 
         for (TelegramUser telegramUser : telegramUserList) {
