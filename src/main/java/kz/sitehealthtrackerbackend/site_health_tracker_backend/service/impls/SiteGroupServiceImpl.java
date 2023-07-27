@@ -101,13 +101,13 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     })
     @Override
-    public boolean addSitesToGroupById(List<Site> sitesOfGroup, Long id) {
+    public boolean addSitesToGroupById(List<Site> sites, Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         List<Site> alreadyExistingSites = new ArrayList<>();
         List<Site> siteOfGroupInDb = siteGroup.getSites();
-        for (Site siteOfGroup : sitesOfGroup) {
+        for (Site siteOfGroup : sites) {
             if (siteOfGroupInDb.contains(siteOfGroup)) {
                 alreadyExistingSites.add(siteOfGroup);
             }
@@ -118,8 +118,10 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                     .entityCollectionWithElementsFailedByExistence(EntityNames.SITE.getName(), alreadyExistingSitesDto, true);
         }
 
-        siteGroup.addSites(sitesOfGroup);
-        saveGroupChangesIfGroupStatusWasNotChanged(siteGroup);
+        siteGroup.addSites(sites);
+        Site siteAdded = sites.get(0);
+        siteAdded.setStatus(SiteStatus.ADDED_TO_GROUP);
+        saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, sites.get(0));
         return true;
     }
 
@@ -155,7 +157,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id", condition = "#result == true")
     })
     @Override
-    public boolean updateGroupStatus(SiteGroup siteGroup) {
+    public boolean updateGroupStatus(SiteGroup siteGroup, Site siteWithChangedStatus) {
         List<Site> sitesOfGroup = getAllGroupSitesById(siteGroup.getId());
         System.out.printf("All sites of %s group: %s\n", siteGroup.getName(), sitesOfGroup);
         SiteGroupStatus siteGroupStatus;
@@ -183,7 +185,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             // maybe it is worth to setGroups also to not get removed the sites from group
             // due to siteGroup's sites list is empty
             siteGroupRepository.save(siteGroup);
-            eventNotifier.notifyAll(siteGroup);
+            eventNotifier.notifyAll(siteGroup, siteWithChangedStatus);
             System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
             return true;
         } else {
@@ -198,8 +200,8 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id")
     })
     @Override
-    public void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup) {
-        boolean siteGroupStatusUpdated = updateGroupStatus(siteGroup);
+    public void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup, Site siteWithChangedStatus) {
+        boolean siteGroupStatusUpdated = updateGroupStatus(siteGroup, siteWithChangedStatus);
         if (!siteGroupStatusUpdated) {
             siteGroupRepository.save(siteGroup);
         }
@@ -226,14 +228,14 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     })
     @Override
-    public boolean deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id) {
+    public boolean deleteSitesFromGroupById(List<Site> sites, Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         List<Site> nonExistentSites = new ArrayList<>();
         List<Site> sitesOfGroupInDb = siteGroup.getSites();
 
-        for (Site siteOfGroup : sitesOfGroup) {
+        for (Site siteOfGroup : sites) {
             if (!sitesOfGroupInDb.contains(siteOfGroup)) {
                 nonExistentSites.add(siteOfGroup);
             }
@@ -246,8 +248,8 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
 
         if (!sitesOfGroupInDb.isEmpty()) {
-            siteGroup.removeSites(sitesOfGroup);
-            saveGroupChangesIfGroupStatusWasNotChanged(siteGroup);
+            siteGroup.removeSites(sites);
+            saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, sites.get(0));
             return true;
         }
         return false;

@@ -1,6 +1,7 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier;
 
 import jakarta.annotation.PostConstruct;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.listeners.EmailNotificationListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.listeners.TelegramUserNotificationListener;
@@ -34,9 +35,9 @@ public class EventNotifier {
         eventListeners.remove(service);
     }
 
-    public void notifyAll(SiteGroup siteGroup) {
+    public void notifyAll(SiteGroup siteGroup, Site siteWithChangedStatus) {
         for (EventListener service : eventListeners) {
-            service.update(siteGroup);
+            service.update(siteGroup, siteWithChangedStatus);
         }
     }
 }

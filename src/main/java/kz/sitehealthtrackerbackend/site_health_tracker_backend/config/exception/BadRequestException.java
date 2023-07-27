@@ -18,7 +18,7 @@ public class BadRequestException extends BaseException {
 
     public static BadRequestException entityCollectionWithElementsFailedByExistence(String entityName, Object body, boolean exist) {
         String existOrNotValue = exist ? "уже" : "не";
-        return new BadRequestException(String.format("%s со списком выбранных элементов %s существует", entityName, existOrNotValue), body);
+        return new BadRequestException(String.format("%s %s содержится в группе", entityName, existOrNotValue), body);
     }
 
     public static BadRequestException sendingMessageToEmailAddressFailed(String address) {

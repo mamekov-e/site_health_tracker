@@ -2,8 +2,10 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.service.impls;
 
 import jakarta.annotation.PostConstruct;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteCheckLog;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteStatus;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteCheckLogService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteHealthSchedulerService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
@@ -14,6 +16,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -26,6 +29,9 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
     private ThreadPoolTaskScheduler taskScheduler;
     @Autowired
     private SiteService siteService;
+
+    @Autowired
+    private SiteCheckLogService siteCheckLogService;
     @Autowired
     private SiteGroupService siteGroupService;
 
@@ -75,13 +81,15 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
             }
         }
 
+        siteCheckLogService.addSiteCheckLog(siteInDb);
+
         if (siteStatusChanged) {
             List<SiteGroup> siteGroups = siteGroupService.getAllSiteGroupsBySite(siteInDb);
             System.out.println("site: " + siteInDb);
             System.out.println("site groups list: " + siteGroups);
             if (!siteGroups.isEmpty()) {
                 for (SiteGroup siteGroup : siteGroups) {
-                    siteGroupService.updateGroupStatus(siteGroup);
+                    siteGroupService.updateGroupStatus(siteGroup, siteInDb);
                 }
             }
         } else {

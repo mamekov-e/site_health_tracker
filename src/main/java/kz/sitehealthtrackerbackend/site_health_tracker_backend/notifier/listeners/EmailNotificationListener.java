@@ -6,6 +6,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.Delimiters;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Email;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.CODE_EXPIRATION_CHECK_INTERVAL;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.CODE_EXPIRATION_CHECK_INTERVAL_IN_MILLIS;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates.EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE;
 
 @Component
@@ -34,21 +35,21 @@ public class EmailNotificationListener implements EventListener {
     private EmailService emailService;
 
     @Transactional
-    @Scheduled(fixedRate = CODE_EXPIRATION_CHECK_INTERVAL)
+    @Scheduled(fixedRate = CODE_EXPIRATION_CHECK_INTERVAL_IN_MILLIS)
     public void checkVerificationCodeExpired() {
         LocalDateTime currentTime = LocalDateTime.now();
-        System.out.println(currentTime);
+        System.out.println("Удаление всех неактивированных почт до " + currentTime);
         emailService.deleteAllByEnabledFalseAndCodeExpirationTimeBefore(currentTime);
     }
 
     @Override
-    public void update(SiteGroup siteGroup) {
+    public void update(SiteGroup siteGroup, Site siteWithChangedStatus) {
         List<Email> subscribersList = emailService.findAllByEnabledTrue();
 
         if (!subscribersList.isEmpty()) {
             String subject = "Статус групп изменился";
             String content = SendingMessageTemplates
-                    .groupStatusChangedTemplateWithDelimiter(siteGroup, Delimiters.HTML_BR);
+                    .groupStatusChangedTemplateWithDelimiter(siteGroup, Delimiters.HTML_BR, siteWithChangedStatus);
 
             for (Email email : subscribersList) {
                 sendMimeMessageInHtml(email.getAddress(), subject, content);

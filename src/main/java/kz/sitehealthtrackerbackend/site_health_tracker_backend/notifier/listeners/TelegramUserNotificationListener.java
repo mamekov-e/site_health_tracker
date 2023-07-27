@@ -3,6 +3,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.listene
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.ApplicationContextProvider;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.Delimiters;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.TelegramUser;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
@@ -21,12 +22,12 @@ public class TelegramUserNotificationListener implements EventListener {
     private TelegramUserService telegramUserService;
 
     @Override
-    public void update(SiteGroup siteGroup) {
+    public void update(SiteGroup siteGroup, Site siteWithChangedStatus) {
         List<TelegramUser> telegramUserList = telegramUserService.findAllTelegramUsersEnabledIs(true);
 
         for (TelegramUser telegramUser : telegramUserList) {
             String text = SendingMessageTemplates
-                    .groupStatusChangedTemplateWithDelimiter(siteGroup, Delimiters.NEW_LINE);
+                    .groupStatusChangedTemplateWithDelimiter(siteGroup, Delimiters.NEW_LINE, siteWithChangedStatus);
             long chatId = telegramUser.getId();
             SendMessage sendMessage = new SendMessage(String.valueOf(chatId), text);
             Thread sendingThread = sendMessageInThread(sendMessage);

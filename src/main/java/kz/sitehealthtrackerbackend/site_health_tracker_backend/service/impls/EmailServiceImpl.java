@@ -17,7 +17,7 @@ import java.util.List;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.ENABLED_EMAILS_CACHE_NAME;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.CODE_EXPIRATION_TIME;
-import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.RANDOM__VERIFICATION_CODE_LENGTH;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.RANDOM_VERIFICATION_CODE_LENGTH;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -56,7 +56,7 @@ public class EmailServiceImpl implements EmailService {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.EMAIL.getName(), address);
         }
 
-        String randomCode = RandomString.make(RANDOM__VERIFICATION_CODE_LENGTH);
+        String randomCode = RandomString.make(RANDOM_VERIFICATION_CODE_LENGTH);
         email.setAddress(address);
         email.setVerificationCode(randomCode);
         email.setCodeExpirationTime(CODE_EXPIRATION_TIME);
@@ -76,7 +76,6 @@ public class EmailServiceImpl implements EmailService {
         return true;
     }
 
-    @CacheEvict(value = ENABLED_EMAILS_CACHE_NAME, allEntries = true)
     @Override
     public void deleteAllByEnabledFalseAndCodeExpirationTimeBefore(LocalDateTime currentTime) {
         emailRepository.deleteAllByEnabledFalseAndCodeExpirationTimeBefore(currentTime);

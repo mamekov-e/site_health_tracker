@@ -1,5 +1,6 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.constants;
 
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteGroupStatus;
 
@@ -20,16 +21,19 @@ public class SendingMessageTemplates {
             "Для получения уведомлений об изменениях статусов групп выберите подписаться в меню.";
 
     public static final String GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE = "Привет, подписчик!<d><d>" +
-            "Уведомляем Вас, что статус группы %s изменился: %s.<d><d>" +
+            "Уведомляем Вас, что статус группы %s изменился: %s.<d>" +
+            "Причина: статус сайта %s изменился - %s.<d><d>" +
             "С уважением,<d>" +
             "Site Health Tracker team.";
 
-    public static String groupStatusChangedTemplateWithDelimiter(SiteGroup siteGroup, Delimiters delimiter) {
+    public static String groupStatusChangedTemplateWithDelimiter(SiteGroup siteGroup, Delimiters delimiter, Site siteWithChangedStatus) {
         String groupName = siteGroup.getName();
-        SiteGroupStatus newGroupStatus = siteGroup.getStatus();
+        String newGroupStatus = siteGroup.getStatus().getStatusValue();
+        String siteName = siteWithChangedStatus.getName();
+        String siteStatus = siteWithChangedStatus.getStatus().getStatusValue();
         String delimitersReplacedTemplate = GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE
                 .replaceAll(Delimiters.REPLACING_DELIMITER.DELIMITER, delimiter.DELIMITER);
 
-        return String.format(delimitersReplacedTemplate, groupName, newGroupStatus.getStatusValue());
+        return String.format(delimitersReplacedTemplate, groupName, newGroupStatus, siteName, siteStatus);
     }
 }

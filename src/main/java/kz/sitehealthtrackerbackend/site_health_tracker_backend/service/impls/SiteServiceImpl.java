@@ -132,7 +132,8 @@ public class SiteServiceImpl implements SiteService {
         System.out.println("siteGroups : getAllSiteGroupsBySiteId = " + siteGroups);
         for (SiteGroup group : siteGroups) {
             group.getSites().remove(site);
-            siteGroupService.saveGroupChangesIfGroupStatusWasNotChanged(group);
+            site.setStatus(SiteStatus.DELETED_FROM_GROUP);
+            siteGroupService.saveGroupChangesIfGroupStatusWasNotChanged(group, site);
         }
         siteHealthSchedulerService.deleteScheduledTask(site);
         siteRepository.deleteById(id);
