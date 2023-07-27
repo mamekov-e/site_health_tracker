@@ -15,6 +15,11 @@ public class SendingMessageTemplates {
             "С уважением,<br>" +
             "Site Health Tracker team.";
 
+    public static final String UNREGISTER_MESSAGE_CONTENT_TEMPLATE = "Привествуем Вас!<br>" +
+            "Отписка от рассылки сервиса Site Health Tracker прошла успешно!<br><br>" +
+            "С уважением,<br>" +
+            "Site Health Tracker team.";
+
     public static final String TELEGRAM_GREETING_TEXT_TEMPLATE = "Добро пожаловать!\n" +
             "Я - бот сервиса Site Health Tracker. " +
             "В мои обязанности входит оповещать подписчиков при изменении статусов групп.\n\n" +

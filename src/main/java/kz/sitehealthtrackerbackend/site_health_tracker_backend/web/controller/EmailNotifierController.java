@@ -29,6 +29,7 @@ public class EmailNotifierController {
     @PostMapping("/unregister")
     public ResponseEntity<String> unregisterEmailFromNotifier(@RequestParam("email-address") String address) {
         emailService.unregisterEmailFromNotifier(address);
+        emailNotificationListener.sendUnregisteredMessage(address);
         return new ResponseEntity<>(address, HttpStatus.OK);
     }
 

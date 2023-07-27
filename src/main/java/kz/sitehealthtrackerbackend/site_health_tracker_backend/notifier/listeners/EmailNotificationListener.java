@@ -24,6 +24,7 @@ import java.util.List;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.CODE_EXPIRATION_CHECK_INTERVAL_IN_MILLIS;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates.EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates.UNREGISTER_MESSAGE_CONTENT_TEMPLATE;
 
 @Component
 public class EmailNotificationListener implements EventListener {
@@ -65,6 +66,12 @@ public class EmailNotificationListener implements EventListener {
         String content = String.format(EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE, verificationUrl);
 
         sendMimeMessageInHtml(email.getAddress(), subject, content);
+    }
+
+    public void sendUnregisteredMessage(String address) {
+        String subject = "Отписка от рассылки";
+
+        sendMimeMessageInHtml(address, subject, UNREGISTER_MESSAGE_CONTENT_TEMPLATE);
     }
 
     private void sendMimeMessageInHtml(String receiver, String subject, String content) {
