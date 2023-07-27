@@ -19,9 +19,9 @@ public interface SiteGroupRepository extends JpaRepository<SiteGroup, Long> {
             "LIKE concat('%', lower(:searchText), '%') order by sg.name asc")
     Page<SiteGroup> findAllInPageWithSearchText(Pageable pageable, @Param("searchText") String searchText);
 
-    boolean existsSiteGroupsByNameIsIgnoreCase(String name);
+    boolean existsSiteGroupsByNameIgnoreCaseIs(String name);
 
-    boolean existsSiteGroupsByNameAndIdIsNot(String name, Long id);
+    boolean existsSiteGroupsByNameIgnoreCaseAndIdIsNot(String name, Long id);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update SiteGroup set name = :siteGroupName,description = :siteGroupDescription where id = :siteGroupId")

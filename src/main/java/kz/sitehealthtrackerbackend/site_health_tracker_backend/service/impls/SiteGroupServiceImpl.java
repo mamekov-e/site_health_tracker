@@ -84,7 +84,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true")
     @Override
     public boolean addSiteGroup(SiteGroup siteGroup) {
-        boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIsIgnoreCase(siteGroup.getName());
+        boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIs(siteGroup.getName());
         if (siteGroupNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE_GROUP.getName(), siteGroup.getName());
         }
@@ -136,7 +136,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         SiteGroup siteGroupInDb = getSiteGroupById(updatedSiteGroup.getId());
 
         boolean siteUpdatedNameAlreadyExist = siteGroupRepository
-                .existsSiteGroupsByNameAndIdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId());
+                .existsSiteGroupsByNameIgnoreCaseAndIdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId());
         if (siteUpdatedNameAlreadyExist) {
             throw BadRequestException
                     .entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSiteGroup.getName());
@@ -215,10 +215,13 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     })
     @Override
     public boolean deleteSiteGroupById(Long id) {
-        boolean siteExist = checkIfSiteGroupExistById(id);
+        boolean siteGroupExist = siteGroupRepository.existsById(id);
+        if (!siteGroupExist) {
+            throw NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id);
+        }
 
         siteGroupRepository.deleteById(id);
-        return siteExist;
+        return true;
     }
 
     @Caching(evict = {
@@ -257,11 +260,4 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         return false;
     }
 
-    private boolean checkIfSiteGroupExistById(Long id) {
-        boolean siteGroupExist = siteGroupRepository.existsById(id);
-        if (!siteGroupExist) {
-            throw NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id);
-        }
-        return true;
-    }
 }

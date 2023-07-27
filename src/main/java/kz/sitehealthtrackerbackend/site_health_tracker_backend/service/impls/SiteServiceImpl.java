@@ -68,10 +68,15 @@ public class SiteServiceImpl implements SiteService {
     @CacheEvict(cacheNames = SITES_CACHE_NAME, allEntries = true)
     @Override
     public void addSite(Site site) {
-        boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIsIgnoreCase(site.getUrl());
+        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCase(site.getName());
+        if (siteNameAlreadyExist) {
+            throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getName());
+        }
+        boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCase(site.getUrl());
         if (siteUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getUrl());
         }
+
         site.setStatus(SiteStatus.DOWN);
         Site siteSaved = siteRepository.save(site);
         siteHealthSchedulerService.addScheduledTask(siteSaved);
@@ -88,11 +93,14 @@ public class SiteServiceImpl implements SiteService {
         final Site siteInDb = siteRepository.findById(updatedSiteId)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), updatedSiteId));
 
-        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlAndIdIsNot(updatedSite.getUrl(), updatedSiteId);
+        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndIdIsNot(updatedSite.getName(), updatedSite.getId());
+        if (siteNameAlreadyExist) {
+            throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getName());
+        }
+        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
         if (siteUpdatedUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getUrl());
         }
-
 
         updatedSite.setStatus(siteInDb.getStatus());
         List<SiteGroup> siteGroups = siteInDb.getGroups();

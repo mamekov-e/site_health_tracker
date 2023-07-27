@@ -1,7 +1,6 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.repository;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
-import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,12 +9,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
 public interface SiteRepository extends JpaRepository<Site, Long> {
-    boolean existsSitesByUrlIsIgnoreCase(String url);
+    boolean existsSitesByNameIgnoreCaseAndIdIsNot(String name, Long id);
+    boolean existsSitesByNameIgnoreCase(String name);
+    boolean existsSitesByUrlIgnoreCase(String url);
 
-    boolean existsSitesByUrlAndIdIsNot(String url, Long id);
+    boolean existsSitesByUrlIgnoreCaseAndIdIsNot(String url, Long id);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update Site set status = :siteStatus where id = :siteId")
