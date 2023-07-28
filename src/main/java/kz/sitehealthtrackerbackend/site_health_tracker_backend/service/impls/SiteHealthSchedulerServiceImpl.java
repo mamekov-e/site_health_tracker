@@ -110,7 +110,7 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
 
         System.out.println("--------Adding: " + site);
         Long siteInterval = site.getSiteHealthCheckInterval();
-        ScheduledFuture<?> scheduledTask = taskScheduler.scheduleWithFixedDelay(
+        ScheduledFuture<?> scheduledTask = taskScheduler.scheduleAtFixedRate(
                 () -> checkSiteHealth(site),
                 new Date().toInstant(),
                 Duration.ofSeconds(siteInterval));
