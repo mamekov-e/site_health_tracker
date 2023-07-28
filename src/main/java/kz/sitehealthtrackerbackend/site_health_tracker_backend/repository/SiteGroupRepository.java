@@ -15,7 +15,7 @@ public interface SiteGroupRepository extends JpaRepository<SiteGroup, Long> {
 
     List<SiteGroup> findAllBySitesIn(List<Site> sites);
 
-    @Query(value = "from SiteGroup sg where lower(concat(sg.name,sg.description,sg.status)) " +
+    @Query(value = "from SiteGroup sg where lower(concat(sg.name,sg.description)) " +
             "LIKE concat('%', lower(:searchText), '%') order by sg.name asc")
     Page<SiteGroup> findAllInPageWithSearchText(Pageable pageable, @Param("searchText") String searchText);
 
