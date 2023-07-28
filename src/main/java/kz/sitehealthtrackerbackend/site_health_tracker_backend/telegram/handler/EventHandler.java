@@ -31,11 +31,7 @@ public class EventHandler {
     }
 
     public SendMessage helpMessage(SendMessage sendMessage) {
-        String anyText = "Доступные опции меню (можно ввести номер):\n" +
-                "1. Подписаться\n" +
-                "2. Отписаться\n" +
-                "3. Помощь\n";
-        sendMessage.setText(anyText);
+        sendMessage.setText(SendingMessageTemplates.TELEGRAM_HELP_TEXT_TEMPLATE);
         return sendMessage;
     }
 

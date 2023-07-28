@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "telegram_users")
@@ -25,4 +26,6 @@ public class TelegramUser implements Serializable {
     private String username;
     @Column(name = "enabled")
     private boolean enabled;
+    @Column(name = "disabled_expiration_time")
+    private LocalDateTime disabledExpirationTime;
 }

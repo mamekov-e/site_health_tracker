@@ -1,5 +1,8 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -35,37 +38,42 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager redisCacheManager() {
-        RedisCacheConfiguration redisCacheConfiguration = configuredRedisCache(REDIS_CACHE_DURATION);
+    public RedisCacheManager redisCacheManager(ObjectMapper objectMapper) {
+        RedisCacheConfiguration redisCacheConfiguration = cacheConfiguration(objectMapper, REDIS_CACHE_DURATION);
 
         return RedisCacheManager.builder(redisConnectionFactory())
                 .cacheDefaults(redisCacheConfiguration)
                 .withCacheConfiguration(SITES_CACHE_NAME,
-                        configuredRedisCache(SITES_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, SITES_CACHE_DURATION))
                 .withCacheConfiguration(SITE_CACHE_NAME,
-                        configuredRedisCache(SITE_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, SITE_CACHE_DURATION))
                 .withCacheConfiguration(SITE_GROUPS_CACHE_NAME,
-                        configuredRedisCache(SITE_GROUPS_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, SITE_GROUPS_CACHE_DURATION))
                 .withCacheConfiguration(SITE_GROUP_CACHE_NAME,
-                        configuredRedisCache(SITE_GROUP_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, SITE_GROUP_CACHE_DURATION))
                 .withCacheConfiguration(SITES_OF_GROUP_CACHE_NAME,
-                        configuredRedisCache(SITES_OF_GROUP_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, SITES_OF_GROUP_CACHE_DURATION))
                 .withCacheConfiguration(GROUPS_OF_SITE_CACHE_NAME,
-                        configuredRedisCache(GROUPS_OF_SITE_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, GROUPS_OF_SITE_CACHE_DURATION))
                 .withCacheConfiguration(ENABLED_EMAILS_CACHE_NAME,
-                        configuredRedisCache(ENABLED_EMAILS_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, ENABLED_EMAILS_CACHE_DURATION))
                 .withCacheConfiguration(TELEGRAM_USER_CACHE_NAME,
-                        configuredRedisCache(TELEGRAM_USER_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, TELEGRAM_USER_CACHE_DURATION))
                 .withCacheConfiguration(ENABLED_TELEGRAM_USERS_CACHE_NAME,
-                        configuredRedisCache(ENABLED_TELEGRAM_USERS_CACHE_DURATION))
+                        cacheConfiguration(objectMapper, ENABLED_TELEGRAM_USERS_CACHE_DURATION))
                 .build();
     }
 
-    private RedisCacheConfiguration configuredRedisCache(Duration duration) {
+    private RedisCacheConfiguration cacheConfiguration(ObjectMapper mapper, Duration ttl) {
+        ObjectMapper myMapper = mapper.copy()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .activateDefaultTyping(new ObjectMapper().getPolymorphicTypeValidator(),
+                        ObjectMapper.DefaultTyping.EVERYTHING,
+                        JsonTypeInfo.As.PROPERTY);
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(duration)
+                .entryTtl(ttl)
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer()))
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer(myMapper)))
                 .disableCachingNullValues();
     }
 }

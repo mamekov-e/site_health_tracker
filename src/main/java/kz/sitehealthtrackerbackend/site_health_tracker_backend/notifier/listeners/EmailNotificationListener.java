@@ -6,7 +6,6 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.Delimiters;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Email;
-import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.CODE_EXPIRATION_CHECK_INTERVAL_IN_MILLIS;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.ExpireConstants.CODE_EXPIRATION_CHECK_INTERVAL_CRON;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates.EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates.UNREGISTER_MESSAGE_CONTENT_TEMPLATE;
 
@@ -37,7 +36,7 @@ public class EmailNotificationListener implements EventListener {
     private EmailService emailService;
 
     @Transactional
-    @Scheduled(fixedRate = CODE_EXPIRATION_CHECK_INTERVAL_IN_MILLIS)
+    @Scheduled(cron = CODE_EXPIRATION_CHECK_INTERVAL_CRON)
     public void checkVerificationCodeExpired() {
         LocalDateTime currentTime = LocalDateTime.now();
         System.out.println("Удаление всех неактивированных почт до " + currentTime);

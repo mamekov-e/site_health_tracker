@@ -9,10 +9,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.ENABLED_TELEGRAM_USERS_CACHE_NAME;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.TELEGRAM_USER_CACHE_NAME;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.ExpireConstants.TELEGRAM_UNSUBSCRIBED_EXPIRATION_TIME;
 
 @Service
 public class TelegramUserServiceImpl implements TelegramUserService {
@@ -45,6 +47,8 @@ public class TelegramUserServiceImpl implements TelegramUserService {
     })
     @Override
     public void saveTelegramUser(TelegramUser telegramUser) {
+        LocalDateTime expireTime = LocalDateTime.now().plus(TELEGRAM_UNSUBSCRIBED_EXPIRATION_TIME);
+        telegramUser.setDisabledExpirationTime(expireTime);
         telegramUserRepository.save(telegramUser);
     }
 
@@ -55,6 +59,12 @@ public class TelegramUserServiceImpl implements TelegramUserService {
     @Override
     public void deleteById(long id) {
         telegramUserRepository.deleteById(id);
+    }
+
+    @CacheEvict(cacheNames = TELEGRAM_USER_CACHE_NAME, allEntries = true)
+    @Override
+    public void deleteAllByEnabledFalseAndCreatedAtBefore(LocalDateTime currentTime) {
+        telegramUserRepository.deleteAllByEnabledFalseAndDisabledExpirationTimeBefore(currentTime);
     }
 
 }

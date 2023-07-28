@@ -6,6 +6,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityN
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Email;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.EmailRepository;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
+import org.apache.commons.lang3.RandomUtils;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,10 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.ENABLED_EMAILS_CACHE_NAME;
-import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.CODE_EXPIRATION_TIME;
-import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EmailConstants.RANDOM_VERIFICATION_CODE_LENGTH;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.ExpireConstants.CODE_EXPIRATION_TIME;
+import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.ExpireConstants.RANDOM_VERIFICATION_CODE_LENGTH;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -59,7 +61,8 @@ public class EmailServiceImpl implements EmailService {
         String randomCode = RandomString.make(RANDOM_VERIFICATION_CODE_LENGTH);
         email.setAddress(address);
         email.setVerificationCode(randomCode);
-        email.setCodeExpirationTime(CODE_EXPIRATION_TIME);
+        LocalDateTime codeExpirationTime = LocalDateTime.now().plus(CODE_EXPIRATION_TIME);
+        email.setCodeExpirationTime(codeExpirationTime);
 
         emailRepository.save(email);
         System.out.println("added:" + email);
