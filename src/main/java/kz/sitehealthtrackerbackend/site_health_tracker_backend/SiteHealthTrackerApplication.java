@@ -12,7 +12,6 @@ import org.telegram.telegrambots.starter.TelegramBotStarterConfiguration;
 
 @Import({TelegramBotStarterConfiguration.class})
 @SpringBootApplication
-@EnableScheduling
 public class SiteHealthTrackerApplication {
 
     public static void main(String[] args) {

@@ -21,7 +21,6 @@ public class TelegramFacade {
     private TelegramUserService telegramUserService;
 
     public BotApiMethod<?> handleUpdate(Update update) {
-        System.out.println("bot writing:" + update);
         ChatMemberUpdated myChatMember = update.getMyChatMember();
 
         if (myChatMember != null) {

@@ -46,16 +46,16 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
+    public Page<SiteGroup> getAllSiteGroupsInPage(Pageable pageable) {
+        return siteGroupRepository.findAll(pageable);
+    }
+
+    @Override
     public Page<Site> getAllSitesOfGroupByIdInPageWithSearchText(Long id, Pageable pageable, String searchText) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
         return siteService.getAllGroupSitesInPageWithSearchText(siteGroup.getId(), pageable, searchText);
-    }
-
-    @Override
-    public Page<SiteGroup> getAllSiteGroupsInPage(Pageable pageable) {
-        return siteGroupRepository.findAll(pageable);
     }
 
     @Cacheable(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#site.id")
@@ -71,15 +71,14 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
     }
 
-//    @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
+    //    @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
     @Override
     public List<Site> getAllGroupSitesById(Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
-        return  siteGroup.getSites();
+        return siteGroup.getSites();
     }
-
 
     @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true")
     @Override
@@ -159,7 +158,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public boolean updateGroupStatus(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         List<Site> sitesOfGroup = getAllGroupSitesById(siteGroup.getId());
-        System.out.printf("All sites of %s group: %s\n", siteGroup.getName(), sitesOfGroup);
+
         SiteGroupStatus siteGroupStatus;
         if (sitesOfGroup.isEmpty()) {
             siteGroupStatus = SiteGroupStatus.NO_SITES;
@@ -186,10 +185,8 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             // due to siteGroup's sites list is empty
             siteGroupRepository.save(siteGroup);
             eventNotifier.notifyAll(siteGroup, siteWithChangedStatus);
-            System.out.printf("Status of site group %s updated: %s%n", siteGroup.getName(), siteGroup.getStatus());
             return true;
         } else {
-            System.out.println("Checked all sites and group status was not changed");
             return false;
         }
     }

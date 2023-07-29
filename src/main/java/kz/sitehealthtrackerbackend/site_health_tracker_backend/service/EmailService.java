@@ -6,13 +6,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EmailService {
-    boolean verify(String code);
+
+    List<Email> getAllByEnabledTrue();
 
     Email registerEmailToNotifier(String address);
+
+    boolean verify(String code);
 
     boolean unregisterEmailFromNotifier(String address);
 
     void deleteAllByEnabledFalseAndCodeExpirationTimeBefore(LocalDateTime currentTime);
 
-    List<Email> findAllByEnabledTrue();
 }

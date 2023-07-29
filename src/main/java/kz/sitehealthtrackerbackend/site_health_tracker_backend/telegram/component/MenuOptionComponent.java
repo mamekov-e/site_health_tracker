@@ -30,7 +30,7 @@ public class MenuOptionComponent {
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboard(false);
 
-        TelegramUser telegramUser = telegramUserService.findById(chatId);
+        TelegramUser telegramUser = telegramUserService.getById(chatId);
         String text = telegramUser.isEnabled() ? "Отписаться" : "Подписаться";
 
         KeyboardRow enabledRow = new KeyboardRow();

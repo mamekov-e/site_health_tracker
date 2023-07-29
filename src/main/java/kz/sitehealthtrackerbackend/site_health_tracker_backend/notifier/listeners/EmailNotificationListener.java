@@ -10,6 +10,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -26,6 +27,7 @@ import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.SendingMessageTemplates.UNREGISTER_MESSAGE_CONTENT_TEMPLATE;
 
 @Component
+@Slf4j
 public class EmailNotificationListener implements EventListener {
 
     @Value("${spring.mail.username}")
@@ -39,13 +41,13 @@ public class EmailNotificationListener implements EventListener {
     @Scheduled(cron = CODE_EXPIRATION_CHECK_INTERVAL_CRON)
     public void checkVerificationCodeExpired() {
         LocalDateTime currentTime = LocalDateTime.now();
-        System.out.println("Удаление всех неактивированных почт до " + currentTime);
+        log.info("Удаление всех неактивированных почт до {}", currentTime);
         emailService.deleteAllByEnabledFalseAndCodeExpirationTimeBefore(currentTime);
     }
 
     @Override
     public void update(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
-        List<Email> subscribersList = emailService.findAllByEnabledTrue();
+        List<Email> subscribersList = emailService.getAllByEnabledTrue();
 
         if (!subscribersList.isEmpty()) {
             String subject = "Статус групп изменился";
@@ -84,7 +86,7 @@ public class EmailNotificationListener implements EventListener {
             messageHelper.setText(content, true);
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            System.out.println(e.getMessage());
+            log.error("Ошибка при отправке сообщения по почте {}:", receiver, e);
             throw BadRequestException.sendingMessageToEmailAddressFailed(receiver);
         }
     }

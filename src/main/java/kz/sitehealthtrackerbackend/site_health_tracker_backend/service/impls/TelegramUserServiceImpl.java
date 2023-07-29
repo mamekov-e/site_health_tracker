@@ -24,20 +24,20 @@ public class TelegramUserServiceImpl implements TelegramUserService {
 
     @Cacheable(cacheNames = ENABLED_TELEGRAM_USERS_CACHE_NAME)
     @Override
-    public List<TelegramUser> findAllTelegramUsersEnabledIs(boolean enable) {
+    public List<TelegramUser> getAllTelegramUsersEnabledIs(boolean enable) {
         return telegramUserRepository.findAllByEnabledIs(enable);
     }
 
     @Cacheable(cacheNames = TELEGRAM_USER_CACHE_NAME, key = "#id", unless = "#result == null")
     @Override
-    public TelegramUser findById(long id) {
+    public TelegramUser getById(long id) {
         return telegramUserRepository.findById(id)
                 .orElse(null);
     }
 
     @Override
     public boolean existById(long id) {
-        return findById(id) != null;
+        return getById(id) != null;
     }
 
 

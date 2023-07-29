@@ -16,13 +16,14 @@ public interface SiteService {
 
     List<Site> getAllSites();
 
-    boolean deleteSiteById(Long id);
-
     Site getSiteById(Long id);
+
+    void addSite(Site site);
 
     Site updateSite(Site site);
 
     Site updateSiteStatusById(SiteStatus status, Long id);
 
-    void addSite(Site site);
+    boolean deleteSiteById(Long id);
+
 }

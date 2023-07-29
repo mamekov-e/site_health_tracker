@@ -1,10 +1,12 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.ZonedDateTime;
 
 @Getter
+@ToString
 public class RestExceptionResponseBody {
     private ZonedDateTime zonedDateTime;
     private String error;

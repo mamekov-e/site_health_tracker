@@ -36,7 +36,7 @@ public class EventHandler {
     }
 
     public BotApiMethod<?> changeEnabledTo(long chatId, boolean enabled) {
-        TelegramUser telegramUser = telegramUserService.findById(chatId);
+        TelegramUser telegramUser = telegramUserService.getById(chatId);
         if (telegramUser.isEnabled() != enabled) {
             telegramUser.setEnabled(enabled);
             telegramUserService.saveTelegramUser(telegramUser);

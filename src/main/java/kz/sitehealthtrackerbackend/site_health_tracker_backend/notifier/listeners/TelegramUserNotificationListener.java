@@ -8,6 +8,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.TelegramUse
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.EventListener;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.TelegramUserService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.util.List;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.ExpireConstants.DELETE_UNSUBSCRIBED_TELEGRAM_USERS_CRON;
 
 @Component
+@Slf4j
 public class TelegramUserNotificationListener implements EventListener {
     @Autowired
     private TelegramUserService telegramUserService;
@@ -30,13 +32,13 @@ public class TelegramUserNotificationListener implements EventListener {
     @Scheduled(cron = DELETE_UNSUBSCRIBED_TELEGRAM_USERS_CRON)
     public void checkVerificationCodeExpired() {
         LocalDateTime currentTime = LocalDateTime.now();
-        System.out.println("Удаление всех отписавшихся от бота пользователей телеграм до " + currentTime);
+        log.info("Удаление всех отписавшихся от бота пользователей телеграм до {}", currentTime);
         telegramUserService.deleteAllByEnabledFalseAndCreatedAtBefore(currentTime);
     }
 
     @Override
     public void update(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
-        List<TelegramUser> telegramUserList = telegramUserService.findAllTelegramUsersEnabledIs(true);
+        List<TelegramUser> telegramUserList = telegramUserService.getAllTelegramUsersEnabledIs(true);
 
         for (TelegramUser telegramUser : telegramUserList) {
             String text = SendingMessageTemplates
@@ -55,7 +57,7 @@ public class TelegramUserNotificationListener implements EventListener {
             try {
                 telegramWebhookBot.execute(sendMessage);
             } catch (TelegramApiException e) {
-                System.out.println(e);
+                log.error("Ошибка при отправке сообщения в телеграм:", e);
             }
         });
     }

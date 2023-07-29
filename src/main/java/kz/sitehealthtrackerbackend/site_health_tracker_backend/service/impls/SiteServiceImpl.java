@@ -105,8 +105,6 @@ public class SiteServiceImpl implements SiteService {
         updatedSite.setStatus(siteInDb.getStatus());
         List<SiteGroup> siteGroups = siteInDb.getGroups();
         updatedSite.setGroups(siteGroups);
-        System.out.println("updatedSite: " + updatedSite);
-        System.out.println("siteInDb: " + siteInDb);
         siteHealthSchedulerService.updateScheduledTask(siteInDb, updatedSite);
 
         return siteRepository.save(updatedSite);
@@ -138,7 +136,7 @@ public class SiteServiceImpl implements SiteService {
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
 
         List<SiteGroup> siteGroups = site.getGroups();
-        System.out.println("siteGroups : getAllSiteGroupsBySiteId = " + siteGroups);
+
         for (SiteGroup group : siteGroups) {
             group.getSites().remove(site);
             SiteDto siteDeletedDto = new SiteDto(site.getName(), SiteStatus.DELETED);

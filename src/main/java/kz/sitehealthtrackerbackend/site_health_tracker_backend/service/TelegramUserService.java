@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface TelegramUserService {
 
-    TelegramUser findById(long id);
+    List<TelegramUser> getAllTelegramUsersEnabledIs(boolean enable);
+
+    TelegramUser getById(long id);
 
     boolean existById(long id);
 
     void saveTelegramUser(TelegramUser telegramUser);
-
-    List<TelegramUser> findAllTelegramUsersEnabledIs(boolean enable);
 
     void deleteById(long userId);
 

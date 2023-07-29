@@ -6,7 +6,6 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityN
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Email;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.EmailRepository;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
-import org.apache.commons.lang3.RandomUtils;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.CacheConstants.ENABLED_EMAILS_CACHE_NAME;
 import static kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.ExpireConstants.CODE_EXPIRATION_TIME;
@@ -29,24 +27,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Cacheable(cacheNames = ENABLED_EMAILS_CACHE_NAME, key = "true")
     @Override
-    public List<Email> findAllByEnabledTrue() {
+    public List<Email> getAllByEnabledTrue() {
         return emailRepository.findAllByEnabledTrue();
-    }
-
-    @CacheEvict(value = ENABLED_EMAILS_CACHE_NAME, condition = "#result == true", allEntries = true)
-    @Override
-    public boolean verify(String code) {
-        Email email = emailRepository.findByVerificationCode(code);
-
-        if (email == null || email.isEnabled()) {
-            return false;
-        } else {
-            email.setEnabled(true);
-            email.setVerificationCode(null);
-            email.setCodeExpirationTime(null);
-            emailRepository.save(email);
-            return true;
-        }
     }
 
     @CacheEvict(value = ENABLED_EMAILS_CACHE_NAME, allEntries = true, condition = "#result != null")
@@ -65,8 +47,23 @@ public class EmailServiceImpl implements EmailService {
         email.setCodeExpirationTime(codeExpirationTime);
 
         emailRepository.save(email);
-        System.out.println("added:" + email);
         return email;
+    }
+
+    @CacheEvict(value = ENABLED_EMAILS_CACHE_NAME, condition = "#result == true", allEntries = true)
+    @Override
+    public boolean verify(String code) {
+        Email email = emailRepository.findByVerificationCode(code);
+
+        if (email == null || email.isEnabled()) {
+            return false;
+        } else {
+            email.setEnabled(true);
+            email.setVerificationCode(null);
+            email.setCodeExpirationTime(null);
+            emailRepository.save(email);
+            return true;
+        }
     }
 
     @CacheEvict(value = ENABLED_EMAILS_CACHE_NAME, allEntries = true, condition = "#result == true")
