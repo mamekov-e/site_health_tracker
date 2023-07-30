@@ -5,14 +5,8 @@ import java.time.Duration;
 public class CacheConstants {
     public static final Duration REDIS_CACHE_DURATION = Duration.ofMinutes(10);
 
-    public static final String SITES_CACHE_NAME = "sites";
-    public static final Duration SITES_CACHE_DURATION = Duration.ofMinutes(1);
-
     public static final String SITE_CACHE_NAME = "site";
     public static final Duration SITE_CACHE_DURATION = Duration.ofMinutes(1);
-
-    public static final String SITE_GROUPS_CACHE_NAME = "site_groups";
-    public static final Duration SITE_GROUPS_CACHE_DURATION = Duration.ofMinutes(5);
 
     public static final String SITE_GROUP_CACHE_NAME = "site_group";
     public static final Duration SITE_GROUP_CACHE_DURATION = Duration.ofMinutes(5);

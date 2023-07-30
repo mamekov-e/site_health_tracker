@@ -52,7 +52,6 @@ public class SiteServiceImpl implements SiteService {
         return siteRepository.findAll(pageable);
     }
 
-    @Cacheable(cacheNames = SITES_CACHE_NAME)
     @Override
     public List<Site> getAllSites() {
         return siteRepository.findAll();
@@ -65,7 +64,12 @@ public class SiteServiceImpl implements SiteService {
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
     }
 
-    @CacheEvict(cacheNames = SITES_CACHE_NAME, allEntries = true)
+    @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#siteGroup.id")
+    public List<Site> getAllSitesBySiteGroup(SiteGroup siteGroup) {
+        List<SiteGroup> siteGroupsList = List.of(siteGroup);
+        return siteRepository.findAllByGroupsIn(siteGroupsList);
+    }
+
     @Override
     public void addSite(Site site) {
         boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCase(site.getName());
@@ -83,7 +87,6 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = SITES_CACHE_NAME, allEntries = true, condition = "#result != null"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#updatedSite.id", condition = "#result != null"),
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result != null")},
             put = @CachePut(cacheNames = SITE_CACHE_NAME, key = "#updatedSite.id", unless = "#result == null"))
@@ -111,7 +114,6 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = SITES_CACHE_NAME, allEntries = true, condition = "#result != null"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#id", condition = "#result != null"),
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result != null")},
             put = @CachePut(cacheNames = SITE_CACHE_NAME, key = "#id", unless = "#result == null"))
@@ -126,7 +128,6 @@ public class SiteServiceImpl implements SiteService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = SITE_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = SITES_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#id", condition = "#result == true"),
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true")
     })

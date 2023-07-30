@@ -19,8 +19,6 @@ public interface SiteGroupService {
 
     SiteGroup getSiteGroupById(Long id);
 
-    List<Site> getAllGroupSitesById(Long id);
-
     boolean addSiteGroup(SiteGroup siteGroup);
 
     boolean addSitesToGroupById(List<Site> sitesOfGroup, Long id);

@@ -43,12 +43,8 @@ public class RedisConfig {
 
         return RedisCacheManager.builder(redisConnectionFactory())
                 .cacheDefaults(redisCacheConfiguration)
-                .withCacheConfiguration(SITES_CACHE_NAME,
-                        cacheConfiguration(objectMapper, SITES_CACHE_DURATION))
                 .withCacheConfiguration(SITE_CACHE_NAME,
                         cacheConfiguration(objectMapper, SITE_CACHE_DURATION))
-                .withCacheConfiguration(SITE_GROUPS_CACHE_NAME,
-                        cacheConfiguration(objectMapper, SITE_GROUPS_CACHE_DURATION))
                 .withCacheConfiguration(SITE_GROUP_CACHE_NAME,
                         cacheConfiguration(objectMapper, SITE_GROUP_CACHE_DURATION))
                 .withCacheConfiguration(SITES_OF_GROUP_CACHE_NAME,

@@ -71,16 +71,6 @@ public class SiteGroupServiceImpl implements SiteGroupService {
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
     }
 
-    //    @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
-    @Override
-    public List<Site> getAllGroupSitesById(Long id) {
-        SiteGroup siteGroup = siteGroupRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
-
-        return siteGroup.getSites();
-    }
-
-    @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true")
     @Override
     public boolean addSiteGroup(SiteGroup siteGroup) {
         boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIs(siteGroup.getName());
@@ -94,10 +84,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
-            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id", condition = "#result == true")
     })
     @Override
     public boolean addSitesToGroupById(List<Site> sites, Long id) {
@@ -125,9 +114,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
 
-    @Caching(evict = {
-            @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result != null"),
-            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result != null")},
+    @Caching(evict = @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result != null"),
             put = @CachePut(cacheNames = SITE_GROUP_CACHE_NAME, key = "#updatedSiteGroup.id", unless = "#result == null"))
     @Transactional
     @Override
@@ -151,13 +138,13 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#siteGroup.id", condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id", condition = "#result == true")
     })
     @Override
     public boolean updateGroupStatus(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
-        List<Site> sitesOfGroup = getAllGroupSitesById(siteGroup.getId());
+        List<Site> sitesOfGroup = siteGroup.getSites(); //siteService.getAllSitesBySiteGroup(siteGroup);
 
         SiteGroupStatus siteGroupStatus;
         if (sitesOfGroup.isEmpty()) {
@@ -191,11 +178,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         }
     }
 
-    @Caching(evict = {
-            @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true),
-            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true),
-            @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id")
-    })
+    @Caching(evict = @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#siteGroup.id"))
     @Override
     public void saveGroupChangesIfGroupStatusWasNotChanged(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
         boolean siteGroupStatusUpdated = updateGroupStatus(siteGroup, siteWithChangedStatus);
@@ -205,7 +188,6 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#id", condition = "#result == true"),
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true")
@@ -222,10 +204,9 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = SITE_GROUPS_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
-            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id")
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id", condition = "#result == true")
     })
     @Override
     public boolean deleteSitesFromGroupById(List<Site> sites, Long id) {

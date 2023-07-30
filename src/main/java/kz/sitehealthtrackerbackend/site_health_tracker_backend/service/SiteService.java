@@ -1,6 +1,7 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.service;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,8 @@ public interface SiteService {
     List<Site> getAllSites();
 
     Site getSiteById(Long id);
+
+    List<Site> getAllSitesBySiteGroup(SiteGroup siteGroup);
 
     void addSite(Site site);
 

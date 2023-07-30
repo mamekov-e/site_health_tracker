@@ -3,6 +3,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteGroupDto;
@@ -19,6 +20,9 @@ import java.util.List;
 public class SiteGroupController {
     @Autowired
     private SiteGroupService siteGroupService;
+
+    @Autowired
+    private SiteService siteService;
 
     @GetMapping
     public ResponseEntity<Page<SiteGroupDto>> getAllSiteGroupsInPage(int pageNumber, int pageSize, String sortBy, String sortDir) {
@@ -50,7 +54,8 @@ public class SiteGroupController {
         Pageable pageRequest = PageRequest.of(pageNumber, pageSize,
                 sortDir.equalsIgnoreCase(Sort.Direction.ASC.toString()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
 
-        List<Site> sitesGroup = siteGroupService.getAllGroupSitesById(id);
+        SiteGroup siteGroup = siteGroupService.getSiteGroupById(id);
+        List<Site> sitesGroup = siteService.getAllSitesBySiteGroup(siteGroup);
         int start = (int) pageRequest.getOffset();
         int end = Math.min((start + pageRequest.getPageSize()), sitesGroup.size());
 
