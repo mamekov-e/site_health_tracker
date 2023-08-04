@@ -103,11 +103,23 @@ public class SiteGroupController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllSiteGroups() {
+        siteGroupService.deleteAllSiteGroups();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PostMapping("/{groupId}/sites/delete")
     public ResponseEntity<Void> deleteSitesFromGroup(@RequestBody List<SiteDto> sitesDto, @PathVariable("groupId") Long id) {
         List<Site> sites = ConverterUtil.convertList(sitesDto, Site.class);
 
         siteGroupService.deleteSitesFromGroupById(sites, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/{groupId}/sites")
+    public ResponseEntity<Void> deleteAllSitesFromGroup(@PathVariable("groupId") Long id) {
+        siteGroupService.deleteAllSitesFromGroupById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

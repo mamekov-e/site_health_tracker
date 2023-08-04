@@ -147,4 +147,29 @@ public class SiteServiceImpl implements SiteService {
         siteRepository.deleteById(id);
         return true;
     }
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true")
+    })
+    @Override
+    public boolean deleteAllSites() {
+        List<Site> siteList = siteRepository.findAll();
+        for (Site site: siteList) {
+            List<SiteGroup> siteGroups = site.getGroups();
+
+            for (SiteGroup group : siteGroups) {
+                group.getSites().remove(site);
+            }
+            siteHealthSchedulerService.deleteScheduledTask(site);
+        }
+        siteRepository.deleteAll();
+        SiteDto siteDto = new SiteDto();
+        List<SiteGroup> siteGroups = siteGroupService.getAllSiteGroups();
+        for (SiteGroup siteGroup: siteGroups) {
+            siteGroupService.updateGroupStatus(siteGroup, siteDto);
+        }
+        return true;
+    }
 }

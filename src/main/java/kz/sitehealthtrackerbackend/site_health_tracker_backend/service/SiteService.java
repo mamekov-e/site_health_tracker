@@ -29,4 +29,5 @@ public interface SiteService {
 
     boolean deleteSiteById(Long id);
 
+    boolean deleteAllSites();
 }

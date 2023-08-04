@@ -19,6 +19,8 @@ public interface SiteGroupService {
 
     SiteGroup getSiteGroupById(Long id);
 
+    List<SiteGroup> getAllSiteGroups();
+
     boolean addSiteGroup(SiteGroup siteGroup);
 
     boolean addSitesToGroupById(List<Site> sitesOfGroup, Long id);
@@ -31,6 +33,9 @@ public interface SiteGroupService {
 
     boolean deleteSiteGroupById(Long id);
 
+    boolean deleteAllSiteGroups();
+
     boolean deleteSitesFromGroupById(List<Site> sitesOfGroup, Long id);
 
+    boolean deleteAllSitesFromGroupById(Long id);
 }

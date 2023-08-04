@@ -72,6 +72,11 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     }
 
     @Override
+    public List<SiteGroup> getAllSiteGroups() {
+        return siteGroupRepository.findAll();
+    }
+
+    @Override
     public boolean addSiteGroup(SiteGroup siteGroup) {
         boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIs(siteGroup.getName());
         if (siteGroupNameAlreadyExist) {
@@ -205,6 +210,17 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true")
+    })
+    @Override
+    public boolean deleteAllSiteGroups() {
+        siteGroupRepository.deleteAll();
+        return true;
+    }
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
             @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", condition = "#result == true"),
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#id", condition = "#result == true")
     })
@@ -232,6 +248,26 @@ public class SiteGroupServiceImpl implements SiteGroupService {
             siteGroup.removeSites(sites);
             Site siteDeletedFromGroup = sites.get(0);
             SiteDto siteDeletedFromGroupDto = new SiteDto(siteDeletedFromGroup.getName(), SiteStatus.DELETED_FROM_GROUP);
+            saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, siteDeletedFromGroupDto);
+            return true;
+        }
+        return false;
+    }
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = GROUPS_OF_SITE_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITE_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true"),
+            @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true")
+    })
+    @Override
+    public boolean deleteAllSitesFromGroupById(Long id) {
+        SiteGroup siteGroup = siteGroupRepository.findById(id)
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
+        List<Site> sitesOfGroupInDb = siteGroup.getSites();
+
+        if (!sitesOfGroupInDb.isEmpty()) {
+            siteGroup.removeSites(sitesOfGroupInDb);
+            SiteDto siteDeletedFromGroupDto = new SiteDto();
             saveGroupChangesIfGroupStatusWasNotChanged(siteGroup, siteDeletedFromGroupDto);
             return true;
         }

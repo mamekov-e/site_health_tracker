@@ -39,7 +39,7 @@ public class SendingMessageTemplates {
 
     public static final String GROUP_STATUS_CHANGED_NOTIFICATION_MESSAGE_CONTENT_TEMPLATE = "Привет, подписчик!<d><d>" +
             "Уведомляем Вас, что статус группы %s изменился: %s.<d>" +
-            "Причина: сайт %s - %s.<d><d>" +
+            "Причина: %s - %s.<d><d>" +
             "Все сайты группы:<d>" +
             "%s<d>" +
             "С уважением,<d>" +
@@ -50,8 +50,15 @@ public class SendingMessageTemplates {
     public static String groupStatusChangedTemplateWithDelimiter(SiteGroup siteGroup, Delimiters delimiter, SiteDto siteWithChangedStatus) {
         String groupName = siteGroup.getName();
         String newGroupStatus = siteGroup.getStatus().getStatusValue();
-        String siteName = siteWithChangedStatus.getName();
-        String siteStatus = siteWithChangedStatus.getStatus().getStatusValue();
+        String siteName;
+        String siteStatus;
+        if (siteWithChangedStatus.getName() != null) {
+            siteName = "сайт " + siteWithChangedStatus.getName();
+            siteStatus = siteWithChangedStatus.getStatus().getStatusValue();
+        } else {
+            siteName = "все сайты ";
+            siteStatus = "удалены";
+        }
         List<Site> sitesOfGroup = siteGroup.getSites();
         StringBuilder allGroupSites = new StringBuilder();
 

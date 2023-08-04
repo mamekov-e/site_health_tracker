@@ -63,4 +63,10 @@ public class SiteController {
         siteService.deleteSiteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllSites() {
+        siteService.deleteAllSites();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
