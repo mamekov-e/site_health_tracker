@@ -7,6 +7,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteStatus;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.SiteRepository;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteCheckLogService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteHealthSchedulerService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
@@ -33,6 +34,9 @@ public class SiteServiceImpl implements SiteService {
 
     @Autowired
     private SiteGroupService siteGroupService;
+
+    @Autowired
+    private SiteCheckLogService siteCheckLogService;
 
     @Autowired
     private SiteHealthSchedulerService siteHealthSchedulerService;
@@ -132,6 +136,7 @@ public class SiteServiceImpl implements SiteService {
             @CacheEvict(cacheNames = SITES_OF_GROUP_CACHE_NAME, allEntries = true, condition = "#result == true")
     })
     @Override
+    @Transactional
     public boolean deleteSiteById(Long id) {
         Site site = siteRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
@@ -143,6 +148,7 @@ public class SiteServiceImpl implements SiteService {
             SiteDto siteDeletedDto = new SiteDto(site.getName(), SiteStatus.DELETED);
             siteGroupService.saveGroupChangesIfGroupStatusWasNotChanged(group, siteDeletedDto);
         }
+        siteCheckLogService.deleteSiteCheckLogBySiteId(site.getId());
         siteHealthSchedulerService.deleteScheduledTask(site);
         siteRepository.deleteById(id);
         return true;

@@ -10,4 +10,6 @@ public interface SiteCheckLogService {
     List<SiteCheckLog> getAllSiteCheckLogsBySiteId(Long siteId, LocalDate date);
 
     void addSiteCheckLog(Site site);
+
+    void deleteSiteCheckLogBySiteId(Long siteId);
 }

@@ -7,6 +7,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteCheck
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,9 +32,16 @@ public class SiteCheckLogServiceImpl implements SiteCheckLogService {
     }
 
     @Override
+    @Transactional
     public void addSiteCheckLog(Site site) {
         SiteCheckLog siteCheckLog = new SiteCheckLog(LocalDateTime.now(), site.getStatus(), site);
         siteCheckLogRepository.save(siteCheckLog);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSiteCheckLogBySiteId(Long siteId) {
+        siteCheckLogRepository.deleteBySiteId(siteId);
     }
 
 }
