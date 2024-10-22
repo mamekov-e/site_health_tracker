@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/site-check-logs")
+@RequestMapping("/v1/site-check-logs")
 public class SiteCheckLogController {
 
     @Autowired

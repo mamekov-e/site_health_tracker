@@ -1,4 +1,4 @@
-package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller;
+package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller.notification;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.telegram.SpringWebhookTelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;

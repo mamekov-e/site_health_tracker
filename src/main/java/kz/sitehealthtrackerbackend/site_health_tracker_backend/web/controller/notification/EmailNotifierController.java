@@ -1,4 +1,4 @@
-package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller;
+package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller.notification;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Email;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/api/v1/emails")
+@RequestMapping("/v1/emails")
 public class EmailNotifierController {
     @Autowired
     private EmailService emailService;
