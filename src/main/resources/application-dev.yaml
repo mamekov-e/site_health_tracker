@@ -7,10 +7,10 @@ spring:
     redis:
       host: redis-rrmm5b.serverless.eun1.cache.amazonaws.com
       port: 6379
-  liquibase:
-    url: jdbc:postgresql://db.cj0sskugkhgk.eu-north-1.rds.amazonaws.com:5432/site_health_tracker_db
-    user: postgres
-    password: postgres
+#  liquibase:
+#    url: jdbc:postgresql://db.cj0sskugkhgk.eu-north-1.rds.amazonaws.com:5432/site_health_tracker_db
+#    user: postgres
+#    password: postgres
 
 app:
   base-url: http://13.61.34.63

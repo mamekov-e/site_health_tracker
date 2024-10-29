@@ -2,7 +2,7 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/site_health_tracker_db
+    url: jdbc:postgresql://db.cj0sskugkhgk.eu-north-1.rds.amazonaws.com:5432/site_health_tracker_db
     username: postgres
     password: postgres
   jpa:
@@ -17,7 +17,7 @@ spring:
     allow-circular-references: true
   data:
     redis:
-      host: localhost
+      host: redis-rrmm5b.serverless.eun1.cache.amazonaws.com
       port: 6379
   mail:
     host: smtp.gmail.com
@@ -43,7 +43,7 @@ server:
   port: 8080
 
 app:
-  base-url: http://localhost:${server.port}
+  base-url: http://13.61.34.63:${server.port}
   auth:
     jwt:
       public-key: ===========MYSECRETKEY===========
