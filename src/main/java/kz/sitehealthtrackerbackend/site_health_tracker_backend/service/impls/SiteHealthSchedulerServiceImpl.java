@@ -54,7 +54,7 @@ public class SiteHealthSchedulerServiceImpl implements SiteHealthSchedulerServic
 
     @Override
     public void checkSiteHealth(Site site) {
-        Site siteInDb = siteService.getSiteById(site.getId());
+        Site siteInDb = siteService.getSiteById(site.getId(), false);
         String url = siteInDb.getUrl();
         HttpStatus status = HttpConnectionUtil.getUrlConnectionStatus(url);
 

@@ -13,24 +13,26 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SiteRepository extends JpaRepository<Site, Long> {
-    boolean existsSitesByNameIgnoreCaseAndIdIsNot(String name, Long id);
-    boolean existsSitesByNameIgnoreCase(String name);
-    boolean existsSitesByUrlIgnoreCase(String url);
+    boolean existsSitesByNameIgnoreCaseAndIdIsNotAndUser_IdIsNot(String name, Long id, Long userId);
 
-    boolean existsSitesByUrlIgnoreCaseAndIdIsNot(String url, Long id);
+    boolean existsSitesByNameIgnoreCaseAndUser_IdIsNot(String name, Long userId);
+
+    boolean existsSitesByUrlIgnoreCaseAndUser_IdIsNot(String url, Long userId);
+
+    boolean existsSitesByUrlIgnoreCaseAndIdIsNotAndUser_IdIsNot(String url, Long id, Long userId);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update Site set status = :siteStatus where id = :siteId")
     void updateSiteStatusById(@Param("siteStatus") SiteStatus status, @Param("siteId") Long id);
 
-    @Query(value = "from Site s where lower(concat(s.name,s.description,s.url,s.siteHealthCheckInterval)) " +
+    @Query(value = "from Site s where s.user.id = :userId and lower(concat(s.name,s.description,s.url,s.siteHealthCheckInterval)) " +
             "LIKE concat('%', lower(:searchText), '%') order by s.name asc")
-    Page<Site> findAllInPageWithSearchText(Pageable pageable, @Param("searchText") String searchText);
+    Page<Site> findAllInPageWithSearchText(@Param("searchText") String searchText, Long userId, Pageable pageable);
 
     @Query(value = "select s.* from sites s " +
             "inner join group_site gs on gs.site_id=s.id " +
             "inner join site_groups sg on gs.group_id=sg.id " +
-            "where lower(concat(s.name,s.description,s.url,s.site_health_check_interval)) " +
+            "where s.user_id = :userId and lower(concat(s.name,s.description,s.url,s.site_health_check_interval)) " +
             "LIKE concat('%', lower(:searchText), '%')  and sg.id =:siteGroupId order by s.name",
             countQuery = "select count(s.*) from sites s " +
                     "inner join group_site gs on gs.site_id=s.id " +
@@ -39,8 +41,13 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
                     "LIKE concat('%', lower(:searchText), '%')  and sg.id =:siteGroupId",
             nativeQuery = true)
     Page<Site> findAllGroupSitesInPageWithSearchText(@Param("siteGroupId") Long siteGroupId,
-                                                     Pageable pageable,
-                                                     @Param("searchText") String searchText);
+                                                     @Param("searchText") String searchText,
+                                                     @Param("userId") Long userId,
+                                                     Pageable pageable);
 
     List<Site> findAllByGroupsIn(List<SiteGroup> siteGroupsList);
+
+    Page<Site> findAllByUser_Id(Long userId, Pageable pageable);
+
+    List<Site> findAllByUser_Id(Long userId);
 }

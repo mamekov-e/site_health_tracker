@@ -5,19 +5,22 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteGroup;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.SecurityController;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteGroupDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/v1/site-groups")
-public class SiteGroupController {
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+public class SiteGroupController implements SecurityController {
     @Autowired
     private SiteGroupService siteGroupService;
 
@@ -25,9 +28,11 @@ public class SiteGroupController {
     private SiteService siteService;
 
     @GetMapping
-    public ResponseEntity<Page<SiteGroupDto>> getAllSiteGroupsInPage(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Pageable pageRequest = PageRequest.of(pageNumber, pageSize,
-                sortDir.equalsIgnoreCase(Sort.Direction.ASC.toString()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+    public ResponseEntity<Page<SiteGroupDto>> getAllSiteGroupsInPage(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                                     @RequestParam(required = false, defaultValue = "5") int pageSize,
+                                                                     @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                                                     @RequestParam(required = false, defaultValue = "desc") String sortDir) {
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.fromString(sortDir), sortBy);
 
         Page<SiteGroup> sites = siteGroupService.getAllSiteGroupsInPage(pageRequest);
         Page<SiteGroupDto> sitesDto = ConverterUtil.convertPage(sites, SiteGroupDto.class);

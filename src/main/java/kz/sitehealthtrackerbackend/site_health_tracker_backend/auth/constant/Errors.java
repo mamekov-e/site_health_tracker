@@ -1,0 +1,42 @@
+package kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.constant;
+
+public interface Errors {
+    // common
+    String UNSUPPORTED_MEDIA_TYPE = "FILE_NOT_SUPPORTED";
+    String INVALID_PARAMETERS = "INVALID_PARAMETERS_SUPPLIED";
+    String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+    String MALFORMED_JSON_REQUEST = "MALFORMED_JSON_REQUEST";
+    String UNKNOWN_ERROR = "UNKNOWN_ERROR";
+    String EMPTY_PARAMETER = "EMPTY_PARAMETER";
+    String INVALID_INPUT = "INVALID_INPUT";
+
+    // password
+    String PASSWORDS_DOES_NOT_MATCH = "PASSWORDS_DOES_NOT_MATCH";
+
+    // email
+    String EMAIL_IN_USE = "EMAIL_IN_USE";
+    String DIRECTOR_EMAIL_IN_USE = "DIRECTOR_EMAIL_IN_USE";
+    String EMAIL_MESSAGE_SENDING_FAILED = "EMAIL_MESSAGE_SENDING_FAILED";
+
+    // token
+    String TOKEN_NOT_FOUND = "TOKEN_NOT_FOUND";
+    String TOKEN_EXPIRED = "TOKEN_EXPIRED";
+
+    // company
+    String INN_IN_USE = "INN_IN_USE";
+    String COMPANY_DIRECTOR_NOT_FOUND = "COMPANY_DIRECTOR_NOT_FOUND";
+    String PHONE_IN_USE = "PHONE_IN_USE";
+    String DIRECTOR_PHONE_IN_USE = "DIRECTOR_PHONE_IN_USE";
+
+    //common
+    String STATUS_INCORRECT = "STATUS_INCORRECT";
+
+    // user
+    String USER_NOT_FOUND = "USER_NOT_FOUND";
+    String INVALID_USER = "INVALID_USER";
+    String USER_NOT_ALLOWED = "USER_NOT_ALLOWED";
+
+    // role
+    String ROLE_NOT_FOUND = "ROLE_NOT_FOUND";
+
+}

@@ -1,14 +1,16 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.User;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteStatus;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -17,26 +19,39 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "sites")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@RequiredArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties(value = {"groups"})
 public class Site extends BaseEntity<Long> {
     @Serial
     private static final long serialVersionUID = 1128829114369223468L;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "url", unique = true)
     private String url;
+
     @Column(name = "site_health_check_interval")
     private Long siteHealthCheckInterval;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "site_status")
-    @Type(PostgreSQLEnumType.class)
     private SiteStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @JsonIgnore
+    private User user;
+
     @ManyToMany(mappedBy = "sites")
+    @ToString.Exclude
     private List<SiteGroup> groups = new ArrayList<>();
 
     @Override

@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://13.61.34.63:5432/site_health_tracker_db
+    username: postgres
+    password: postgres
+  data:
+    redis:
+      host: 13.61.34.63
+      port: 6379
+  liquibase:
+    url: jdbc:postgresql://13.61.34.63:5432/site_health_tracker_db
+    user: postgres
+    password: postgres
+
+app:
+  base-url: http://13.61.34.63

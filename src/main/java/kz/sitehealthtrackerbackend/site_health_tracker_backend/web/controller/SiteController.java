@@ -3,6 +3,7 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.Site;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.SecurityController;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,18 +12,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/sites")
-public class SiteController {
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+public class SiteController implements SecurityController {
     @Autowired
     private SiteService siteService;
 
     @GetMapping
-    public ResponseEntity<Page<SiteDto>> getAllSitesInPage(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Pageable pageRequest = PageRequest.of(pageNumber, pageSize,
-                sortDir.equalsIgnoreCase(Sort.Direction.ASC.toString()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+    public ResponseEntity<Page<SiteDto>> getAllSitesInPage(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                                           @RequestParam(required = false, defaultValue = "5") int pageSize,
+                                                           @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                                           @RequestParam(required = false, defaultValue = "desc") String sortDir) {
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.fromString(sortDir), sortBy);
 
         Page<Site> sites = siteService.getAllSiteInPage(pageRequest);
         Page<SiteDto> sitesDto = ConverterUtil.convertPage(sites, SiteDto.class);
@@ -38,7 +43,7 @@ public class SiteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SiteDto> getSiteById(@PathVariable("id") Long id) {
-        Site site = siteService.getSiteById(id);
+        Site site = siteService.getSiteById(id, true);
         SiteDto siteDtoResponse = ConverterUtil.convertObject(site, SiteDto.class);
         return ResponseEntity.ok(siteDtoResponse);
     }

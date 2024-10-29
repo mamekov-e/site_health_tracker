@@ -1,5 +1,7 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.service.impls;
 
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.User;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.security.SecurityUtils;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.NotFoundException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityNames;
@@ -12,6 +14,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.repository.SiteGr
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.EntityUtils;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -42,12 +45,12 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Override
     public Page<SiteGroup> getAllSiteGroupsInPageWithSearchText(Pageable pageable, String searchText) {
-        return siteGroupRepository.findAllInPageWithSearchText(pageable, searchText);
+        return siteGroupRepository.findAllInPageWithSearchText(searchText, SecurityUtils.getCurrentUserId(), pageable);
     }
 
     @Override
     public Page<SiteGroup> getAllSiteGroupsInPage(Pageable pageable) {
-        return siteGroupRepository.findAll(pageable);
+        return siteGroupRepository.findAllByUser_Id(SecurityUtils.getCurrentUserId(), pageable);
     }
 
     @Override
@@ -55,34 +58,40 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
 
+        EntityUtils.checkUserAllowed(siteGroup.getUser().getId());
+
         return siteService.getAllGroupSitesInPageWithSearchText(siteGroup.getId(), pageable, searchText);
     }
 
     @Cacheable(cacheNames = GROUPS_OF_SITE_CACHE_NAME, key = "#site.id")
     public List<SiteGroup> getAllSiteGroupsBySite(Site site) {
         List<Site> siteList = List.of(site);
-        return siteGroupRepository.findAllBySitesIn(siteList);
+        return siteGroupRepository.findAllByUser_IdAndSitesIn(SecurityUtils.getCurrentUserId(), siteList);
     }
 
     @Cacheable(cacheNames = SITE_GROUP_CACHE_NAME, key = "#id", unless = "#result == null")
     @Override
     public SiteGroup getSiteGroupById(Long id) {
-        return siteGroupRepository.findById(id)
+        SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
+        EntityUtils.checkUserAllowed(siteGroup.getUser().getId());
+
+        return siteGroup;
     }
 
     @Override
     public List<SiteGroup> getAllSiteGroups() {
-        return siteGroupRepository.findAll();
+        return siteGroupRepository.findAllByUser_Id(SecurityUtils.getCurrentUserId());
     }
 
     @Override
     public boolean addSiteGroup(SiteGroup siteGroup) {
-        boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIs(siteGroup.getName());
+        boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIsAndUser_IdIsNot(siteGroup.getName(), SecurityUtils.getCurrentUserId());
         if (siteGroupNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE_GROUP.getName(), siteGroup.getName());
         }
 
+        siteGroup.setUser(new User(SecurityUtils.getCurrentUserId()));
         siteGroup.setStatus(SiteGroupStatus.NO_SITES);
         siteGroupRepository.save(siteGroup);
         return true;
@@ -97,6 +106,8 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     public boolean addSitesToGroupById(List<Site> sites, Long id) {
         SiteGroup siteGroup = siteGroupRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
+
+        EntityUtils.checkUserAllowed(siteGroup.getUser().getId());
 
         List<Site> alreadyExistingSites = new ArrayList<>();
         List<Site> siteOfGroupInDb = siteGroup.getSites();
@@ -125,14 +136,16 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     @Override
     public SiteGroup updateSiteGroup(SiteGroup updatedSiteGroup) {
         SiteGroup siteGroupInDb = getSiteGroupById(updatedSiteGroup.getId());
+        EntityUtils.checkUserAllowed(siteGroupInDb.getUser().getId());
 
         boolean siteUpdatedNameAlreadyExist = siteGroupRepository
-                .existsSiteGroupsByNameIgnoreCaseAndIdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId());
+                .existsSiteGroupsByNameIgnoreCaseAndIdIsNotAndUser_IdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId(), SecurityUtils.getCurrentUserId());
         if (siteUpdatedNameAlreadyExist) {
             throw BadRequestException
                     .entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSiteGroup.getName());
         }
 
+        updatedSiteGroup.setUser(siteGroupInDb.getUser());
         updatedSiteGroup.setStatus(siteGroupInDb.getStatus());
         siteGroupRepository.updateSiteGroupById(
                 updatedSiteGroup.getName(),
@@ -149,7 +162,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     })
     @Override
     public boolean updateGroupStatus(SiteGroup siteGroup, SiteDto siteWithChangedStatus) {
-        List<Site> sitesOfGroup = siteGroup.getSites(); //siteService.getAllSitesBySiteGroup(siteGroup);
+        List<Site> sitesOfGroup = siteGroup.getSites();
 
         SiteGroupStatus siteGroupStatus;
         if (sitesOfGroup.isEmpty()) {
@@ -199,10 +212,10 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     })
     @Override
     public boolean deleteSiteGroupById(Long id) {
-        boolean siteGroupExist = siteGroupRepository.existsById(id);
-        if (!siteGroupExist) {
-            throw NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id);
-        }
+        SiteGroup siteGroup = siteGroupRepository.findById(id)
+                .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE_GROUP.getName(), id));
+
+        EntityUtils.checkUserAllowed(siteGroup.getUser().getId());
 
         siteGroupRepository.deleteById(id);
         return true;
@@ -215,7 +228,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
     })
     @Override
     public boolean deleteAllSiteGroups() {
-        siteGroupRepository.deleteAll();
+        siteGroupRepository.deleteAllByUser_Id(SecurityUtils.getCurrentUserId());
         return true;
     }
 

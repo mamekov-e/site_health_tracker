@@ -1,5 +1,7 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.service.impls;
 
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.User;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.security.SecurityUtils;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.NotFoundException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityNames;
@@ -11,6 +13,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteCheck
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteGroupService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteHealthSchedulerService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.EntityUtils;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -43,17 +46,17 @@ public class SiteServiceImpl implements SiteService {
 
     @Override
     public Page<Site> getAllSiteInPageWithSearchText(Pageable pageable, String searchText) {
-        return siteRepository.findAllInPageWithSearchText(pageable, searchText);
+        return siteRepository.findAllInPageWithSearchText(searchText, SecurityUtils.getCurrentUserId(), pageable);
     }
 
     @Override
     public Page<Site> getAllGroupSitesInPageWithSearchText(Long siteGroupId, Pageable pageable, String searchText) {
-        return siteRepository.findAllGroupSitesInPageWithSearchText(siteGroupId, pageable, searchText);
+        return siteRepository.findAllGroupSitesInPageWithSearchText(siteGroupId, searchText, SecurityUtils.getCurrentUserId(), pageable);
     }
 
     @Override
     public Page<Site> getAllSiteInPage(Pageable pageable) {
-        return siteRepository.findAll(pageable);
+        return siteRepository.findAllByUser_Id(SecurityUtils.getCurrentUserId(), pageable);
     }
 
     @Override
@@ -63,9 +66,14 @@ public class SiteServiceImpl implements SiteService {
 
     @Cacheable(cacheNames = SITE_CACHE_NAME, key = "#id", unless = "#result == null")
     @Override
-    public Site getSiteById(Long id) {
-        return siteRepository.findById(id)
+    public Site getSiteById(Long id, boolean validate) {
+        Site siteInDb = siteRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
+
+        if (validate)
+            EntityUtils.checkUserAllowed(siteInDb.getUser().getId());
+
+        return siteInDb;
     }
 
     @Cacheable(cacheNames = SITES_OF_GROUP_CACHE_NAME, key = "#siteGroup.id")
@@ -76,15 +84,17 @@ public class SiteServiceImpl implements SiteService {
 
     @Override
     public void addSite(Site site) {
-        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCase(site.getName());
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndUser_IdIsNot(site.getName(), currentUserId);
         if (siteNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getName());
         }
-        boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCase(site.getUrl());
+        boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndUser_IdIsNot(site.getUrl(), currentUserId);
         if (siteUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getUrl());
         }
 
+        site.setUser(new User(currentUserId));
         site.setStatus(SiteStatus.DOWN);
         Site siteSaved = siteRepository.save(site);
         siteHealthSchedulerService.addScheduledTask(siteSaved);
@@ -100,15 +110,21 @@ public class SiteServiceImpl implements SiteService {
         final Site siteInDb = siteRepository.findById(updatedSiteId)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), updatedSiteId));
 
-        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndIdIsNot(updatedSite.getName(), updatedSite.getId());
+        EntityUtils.checkUserAllowed(siteInDb.getUser().getId());
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndIdIsNotAndUser_IdIsNot(updatedSite.getName(),
+                updatedSite.getId(), currentUserId);
         if (siteNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getName());
         }
-        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndIdIsNot(updatedSite.getUrl(), updatedSite.getId());
+        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndIdIsNotAndUser_IdIsNot(updatedSite.getUrl(),
+                updatedSite.getId(), currentUserId);
         if (siteUpdatedUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getUrl());
         }
 
+        updatedSite.setUser(siteInDb.getUser());
         updatedSite.setStatus(siteInDb.getStatus());
         List<SiteGroup> siteGroups = siteInDb.getGroups();
         updatedSite.setGroups(siteGroups);
@@ -141,6 +157,8 @@ public class SiteServiceImpl implements SiteService {
         Site site = siteRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.entityNotFoundById(EntityNames.SITE.getName(), id));
 
+        EntityUtils.checkUserAllowed(site.getUser().getId());
+
         List<SiteGroup> siteGroups = site.getGroups();
 
         for (SiteGroup group : siteGroups) {
@@ -161,8 +179,8 @@ public class SiteServiceImpl implements SiteService {
     })
     @Override
     public boolean deleteAllSites() {
-        List<Site> siteList = siteRepository.findAll();
-        for (Site site: siteList) {
+        List<Site> siteList = siteRepository.findAllByUser_Id(SecurityUtils.getCurrentUserId());
+        for (Site site : siteList) {
             List<SiteGroup> siteGroups = site.getGroups();
 
             for (SiteGroup group : siteGroups) {
@@ -173,7 +191,7 @@ public class SiteServiceImpl implements SiteService {
         siteRepository.deleteAll();
         SiteDto siteDto = new SiteDto();
         List<SiteGroup> siteGroups = siteGroupService.getAllSiteGroups();
-        for (SiteGroup siteGroup: siteGroups) {
+        for (SiteGroup siteGroup : siteGroups) {
             siteGroupService.updateGroupStatus(siteGroup, siteDto);
         }
         return true;

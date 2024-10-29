@@ -27,7 +27,8 @@ public class SiteCheckLogServiceImpl implements SiteCheckLogService {
     public List<SiteCheckLog> getAllSiteCheckLogsBySiteId(Long siteId, LocalDate date) {
         LocalDateTime startDateTime = LocalDateTime.of(date, LocalTime.MIN);
         LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
-        Site site = siteService.getSiteById(siteId);
+        Site site = siteService.getSiteById(siteId, true);
+
         return siteCheckLogRepository.findAllBySiteAndCheckTimeBetweenOrderByCheckTime(site, startDateTime, endDateTime);
     }
 

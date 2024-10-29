@@ -1,0 +1,66 @@
+spring:
+  profiles:
+    active: default
+  datasource:
+    url: jdbc:postgresql://localhost:5432/site_health_tracker_db
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        use_sql_comments: true
+  main:
+    allow-circular-references: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: site.health.tracker@gmail.com
+    password: cxjlglzlwmafvzvk
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+#  liquibase:
+#    url: jdbc:postgresql://localhost:5432/site_health_tracker_db
+#    user: postgres
+#    password: postgres
+#    change-log: classpath:db/master.yaml
+#    enabled: true
+
+server:
+  servlet:
+    context-path: /api
+  port: 8080
+
+app:
+  base-url: http://localhost:${server.port}
+  auth:
+    jwt:
+      public-key: ===========MYSECRETKEY===========
+      expiration-ms: 3600000
+      refresh:
+        expiration-ms: 5400000
+
+# Ngrok configuration
+ngrok:
+  enabled: true
+  authToken: 2SjD6hF2kXrIy1k5h883qdKhCzX_3KTNGB5kM2MMgGiF1EpAP
+  binary:
+    custom: https://intensely-first-escargot.ngrok-free.app
+
+# Telegram bot settings
+telegram:
+  bot:
+    username: site_health_tracker_bot
+    token: 6174798667:AAG03Kg90WfblzK5TfVURHXbG1koBQo9qYI
+    webHookPath: "https://api.telegram.org/bot6174798667:AAG03Kg90WfblzK5TfVURHXbG1koBQo9qYI/setWebhook?url=https://intensely-first-escargot.ngrok-free.app"

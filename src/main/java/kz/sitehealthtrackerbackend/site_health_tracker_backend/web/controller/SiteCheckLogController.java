@@ -3,9 +3,11 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.web.controller;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.SiteCheckLog;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.SiteCheckLogService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.utils.ConverterUtil;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.SecurityController;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.web.dtos.SiteCheckLogDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +18,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/site-check-logs")
-public class SiteCheckLogController {
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+public class SiteCheckLogController implements SecurityController {
 
     @Autowired
     private SiteCheckLogService siteCheckLogService;

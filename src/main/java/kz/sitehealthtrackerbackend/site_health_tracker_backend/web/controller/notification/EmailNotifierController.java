@@ -7,11 +7,13 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.notifier.listener
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/v1/emails")
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
 public class EmailNotifierController {
     @Autowired
     private EmailService emailService;

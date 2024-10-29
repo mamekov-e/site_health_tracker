@@ -3,12 +3,12 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.User;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.SiteGroupStatus;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -17,21 +17,29 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "site_groups")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@RequiredArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties(value = {"sites"})
 public class SiteGroup extends BaseEntity<Long> {
     @Serial
     private static final long serialVersionUID = -4641758150802733484L;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "description")
     private String description;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    @Type(PostgreSQLEnumType.class)
     private SiteGroupStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "group_site",
             joinColumns = @JoinColumn(name = "group_id"),
@@ -55,13 +63,15 @@ public class SiteGroup extends BaseEntity<Long> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SiteGroup siteGroup)) return false;
-        return super.getId().equals(siteGroup.getId()) && getName().equals(siteGroup.getName()) && Objects.equals(getDescription(), siteGroup.getDescription()) && getStatus() == siteGroup.getStatus();
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        SiteGroup siteGroup = (SiteGroup) o;
+        return Objects.equals(getName(), siteGroup.getName()) && Objects.equals(getDescription(), siteGroup.getDescription()) && getStatus() == siteGroup.getStatus();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.getId(), getName(), getDescription(), getStatus());
+        return Objects.hash(super.hashCode(), getName(), getDescription(), getStatus());
     }
 
     @Override

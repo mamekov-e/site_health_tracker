@@ -17,7 +17,7 @@ public interface SiteService {
 
     List<Site> getAllSites();
 
-    Site getSiteById(Long id);
+    Site getSiteById(Long id, boolean validate);
 
     List<Site> getAllSitesBySiteGroup(SiteGroup siteGroup);
 
