@@ -5,22 +5,17 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="1" author="Elnur">
-        <createTable tableName="roles" schemaName="auth">
-            <column name="id" type="smallserial">
+    <changeSet id="13" author="Elnur">
+        <createTable tableName="emails" schemaName="sht">
+            <column name="id" type="bigserial">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(256)">
+            <column name="address" type="varchar(256)">
                 <constraints nullable="false"/>
             </column>
+            <column name="verification_code" type="varchar(256)"/>
+            <column name="code_expiration_time" type="timestamp"/>
+            <column name="enabled" type="bool" defaultValue="false"/>
         </createTable>
-
-        <loadData
-                tableName="roles"
-                schemaName="auth"
-                file="db/changelog/sql/auth/data/roles.csv"
-                separator=";"
-                encoding="UTF-8"/>
     </changeSet>
 </databaseChangeLog>
-

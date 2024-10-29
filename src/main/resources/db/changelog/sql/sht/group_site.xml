@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="12" author="Elnur">
+        <createTable tableName="group_site" schemaName="sht">
+            <column name="site_id" type="bigint">
+                <constraints foreignKeyName="fk_site_group"
+                             referencedTableName="sites" referencedTableSchemaName="sht"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="group_id" type="bigint">
+                <constraints foreignKeyName="fk_group_site"
+                             referencedTableName="site_groups" referencedTableSchemaName="sht"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

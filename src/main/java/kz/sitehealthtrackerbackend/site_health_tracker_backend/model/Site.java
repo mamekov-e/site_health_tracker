@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "sites")
+@Table(name = "sites", schema = "sht")
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public class Site extends BaseEntity<Long> {
     private Long siteHealthCheckInterval;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "site_status")
+    @Column(name = "status", columnDefinition = "sht.site_status")
     private SiteStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)

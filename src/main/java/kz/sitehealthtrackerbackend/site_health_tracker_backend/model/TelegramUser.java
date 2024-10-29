@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "telegram_users")
+@Table(name = "telegram_users", schema = "sht")
 @Getter
 @Setter
 @ToString

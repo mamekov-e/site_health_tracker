@@ -1,7 +1,7 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.service;
 
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.EmailConfirmationToken;
-import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.Mail;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.dto.Mail;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.PasswordResetToken;
 
 public interface EmailSenderService {

@@ -1,1 +1,25 @@
 databaseChangeLog:
+  - include:
+        file: db/changelog/sql/common/schema.xml
+  - include:
+      file: db/changelog/sql/auth/roles.xml
+  - include:
+      file: db/changelog/sql/auth/users.xml
+  - include:
+      file: db/changelog/sql/auth/user_roles.xml
+  - include:
+      file: db/changelog/sql/auth/email_confirmation_token.xml
+  - include:
+      file: db/changelog/sql/auth/password_reset_token.xml
+  - include:
+      file: db/changelog/sql/sht/sites.xml
+  - include:
+      file: db/changelog/sql/sht/site_check_logs.xml
+  - include:
+      file: db/changelog/sql/sht/site_groups.xml
+  - include:
+      file: db/changelog/sql/sht/group_site.xml
+  - include:
+      file: db/changelog/sql/sht/emails.xml
+  - include:
+      file: db/changelog/sql/sht/telegram_users.xml

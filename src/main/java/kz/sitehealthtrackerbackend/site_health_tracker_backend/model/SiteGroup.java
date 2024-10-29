@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "site_groups")
+@Table(name = "site_groups", schema = "sht")
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class SiteGroup extends BaseEntity<Long> {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "sht.site_group_status")
     private SiteGroupStatus status;
 
     @ManyToOne
@@ -41,7 +41,7 @@ public class SiteGroup extends BaseEntity<Long> {
     private User user;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinTable(name = "group_site",
+    @JoinTable(name = "group_site", schema = "sht",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "site_id"))
     private List<Site> sites = new ArrayList<>();

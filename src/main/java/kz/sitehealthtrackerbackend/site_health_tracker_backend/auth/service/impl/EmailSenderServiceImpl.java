@@ -6,7 +6,7 @@ import jakarta.ws.rs.InternalServerErrorException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.constant.EEmailTemplate;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.constant.Errors;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.EmailConfirmationToken;
-import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.Mail;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.dto.Mail;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.PasswordResetToken;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.service.EmailSenderService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;

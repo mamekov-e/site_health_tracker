@@ -5,20 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="7" author="Elnur">
-        <sql>
-            create type sht.site_status as enum ('UP', 'DOWN', 'ADDED_TO_GROUP', 'DELETED', 'DELETED_FROM_GROUP');
-            CREATE CAST (varchar AS sht.site_status) WITH INOUT AS IMPLICIT;
-        </sql>
-    </changeSet>
-    <changeSet id="8" author="Elnur">
-        <sql>
-            create type sht.site_group_status as enum ('ALL_UP', 'ALL_DOWN', 'PARTIAL_UP', 'NO_SITES');
-            CREATE CAST (varchar AS sht.site_group_status) WITH INOUT AS IMPLICIT;
-        </sql>
-    </changeSet>
-    <changeSet id="9" author="Elnur">
-        <createTable tableName="sites" schemaName="sht">
+    <changeSet id="11" author="Elnur">
+        <createTable tableName="site_groups" schemaName="sht">
             <column name="id" type="bigserial">
                 <constraints primaryKey="true"/>
             </column>
@@ -26,19 +14,14 @@
                 <constraints nullable="false"/>
             </column>
             <column name="description" type="text"/>
-            <column name="url" type="varchar(255)">
-                <constraints unique="true" nullable="false"/>
-            </column>
-            <column name="site_health_check_interval" type="int"/>
             <column name="user_id" type="bigint">
                 <constraints foreignKeyName="fk_password_reset_token_users"
                              referencedTableName="users" referencedTableSchemaName="auth"
                              referencedColumnNames="id" unique="true"/>
             </column>
-            <column name="status" type="sht.site_status">
+            <column name="status" type="sht.site_group_status">
                 <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
-
 </databaseChangeLog>

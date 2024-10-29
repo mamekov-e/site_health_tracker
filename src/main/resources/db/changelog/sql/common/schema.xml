@@ -4,4 +4,15 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <changeSet id="auth-schema" author="Elnur">
+        <sql>
+            create schema auth;
+        </sql>
+    </changeSet>
+
+    <changeSet id="sht-schema" author="Elnur">
+        <sql>
+            create schema sht;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

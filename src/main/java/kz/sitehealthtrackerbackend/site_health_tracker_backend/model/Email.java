@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "emails")
+@Table(name = "emails", schema = "sht")
 @Getter
 @Setter
 @ToString

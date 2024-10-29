@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "site_check_logs")
+@Table(name = "site_check_logs", schema = "sht")
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class SiteCheckLog extends BaseEntity<Long> {
     private LocalDateTime checkTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "site_status", nullable = false)
+    @Column(name = "status", columnDefinition = "sht.site_status", nullable = false)
     private SiteStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

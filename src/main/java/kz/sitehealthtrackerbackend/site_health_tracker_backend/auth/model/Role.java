@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "roles")
+@Table(name = "roles", schema = "auth")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

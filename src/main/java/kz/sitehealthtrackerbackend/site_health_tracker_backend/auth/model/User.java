@@ -20,7 +20,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "users",
+@Table(name = "users", schema = "auth",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "email")
         })
@@ -58,7 +58,7 @@ public class User implements Serializable {
     private LocalDateTime lastModifiedDate = LocalDateTime.now();
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",
+    @JoinTable(name = "user_roles", schema = "auth",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();

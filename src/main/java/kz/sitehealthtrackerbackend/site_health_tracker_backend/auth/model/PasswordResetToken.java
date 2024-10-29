@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "password_reset_token")
+@Table(name = "password_reset_token", schema = "auth")
 public class PasswordResetToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

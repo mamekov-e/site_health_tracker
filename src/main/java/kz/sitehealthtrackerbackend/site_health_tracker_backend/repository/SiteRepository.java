@@ -29,14 +29,14 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
             "LIKE concat('%', lower(:searchText), '%') order by s.name asc")
     Page<Site> findAllInPageWithSearchText(@Param("searchText") String searchText, Long userId, Pageable pageable);
 
-    @Query(value = "select s.* from sites s " +
-            "inner join group_site gs on gs.site_id=s.id " +
-            "inner join site_groups sg on gs.group_id=sg.id " +
+    @Query(value = "select s.* from sht.sites s " +
+            "inner join sht.group_site gs on gs.site_id=s.id " +
+            "inner join sht.site_groups sg on gs.group_id=sg.id " +
             "where s.user_id = :userId and lower(concat(s.name,s.description,s.url,s.site_health_check_interval)) " +
             "LIKE concat('%', lower(:searchText), '%')  and sg.id =:siteGroupId order by s.name",
             countQuery = "select count(s.*) from sites s " +
-                    "inner join group_site gs on gs.site_id=s.id " +
-                    "inner join site_groups sg on gs.group_id=sg.id " +
+                    "inner join sht.group_site gs on gs.site_id=s.id " +
+                    "inner join sht.site_groups sg on gs.group_id=sg.id " +
                     "where lower(concat(s.name,s.description,s.url,s.site_health_check_interval)) " +
                     "LIKE concat('%', lower(:searchText), '%')  and sg.id =:siteGroupId",
             nativeQuery = true)

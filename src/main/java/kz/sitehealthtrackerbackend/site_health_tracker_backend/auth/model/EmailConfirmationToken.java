@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "email_confirmation_token")
+@Table(name = "email_confirmation_token", schema = "auth")
 public class EmailConfirmationToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

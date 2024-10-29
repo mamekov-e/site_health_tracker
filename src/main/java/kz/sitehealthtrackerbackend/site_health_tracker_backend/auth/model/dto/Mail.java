@@ -1,4 +1,4 @@
-package kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model;
+package kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.dto;
 
 import lombok.Data;
 

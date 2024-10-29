@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="10" author="Elnur">
+        <createTable tableName="site_check_logs" schemaName="sht">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="site_id" type="bigint">
+                <constraints foreignKeyName="fk_site_check_log_sites"
+                             referencedTableName="sites" referencedTableSchemaName="sht"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="check_time" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="status" type="sht.site_status">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
