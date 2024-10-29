@@ -13,4 +13,4 @@ spring:
 #    password: postgres
 
 app:
-  base-url: http://13.61.34.63
+  base-url: http://13.61.34.63:${server.port}
