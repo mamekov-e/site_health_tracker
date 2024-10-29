@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: default
+    active: dev
   datasource:
     url: jdbc:postgresql://localhost:5432/site_health_tracker_db
     username: postgres
