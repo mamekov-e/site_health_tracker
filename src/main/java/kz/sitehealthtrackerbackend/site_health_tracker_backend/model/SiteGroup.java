@@ -1,6 +1,7 @@
 package kz.sitehealthtrackerbackend.site_health_tracker_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
@@ -9,6 +10,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.model.statuses.Si
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -36,8 +38,10 @@ public class SiteGroup extends BaseEntity<Long> {
     @Column(name = "status", columnDefinition = "sht.site_group_status")
     private SiteGroupStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @JsonIgnore
     private User user;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)

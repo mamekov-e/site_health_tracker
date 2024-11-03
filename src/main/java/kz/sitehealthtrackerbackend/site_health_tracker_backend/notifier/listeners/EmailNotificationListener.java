@@ -36,6 +36,8 @@ public class EmailNotificationListener implements EventListener {
     private JavaMailSender mailSender;
     @Autowired
     private EmailService emailService;
+    @Value("${app.base-url}")
+    private String appBaseUrl;
 
     @Transactional
     @Scheduled(cron = CODE_EXPIRATION_CHECK_INTERVAL_CRON)
@@ -61,9 +63,9 @@ public class EmailNotificationListener implements EventListener {
     }
 
 
-    public void sendEmailVerification(Email email, String urlPath) {
+    public void sendEmailVerification(Email email) {
         String subject = "Подтвердите вашу подписку";
-        String verificationUrl = urlPath + "/verify?code=" + email.getVerificationCode();
+        String verificationUrl = String.format("%s/v1/public/emails/register/verify?code=%s", appBaseUrl, email.getVerificationCode());
         String content = String.format(EMAIL_VERIFICATION_MESSAGE_CONTENT_TEMPLATE, verificationUrl);
 
         sendMimeMessageInHtml(email.getAddress(), subject, content);

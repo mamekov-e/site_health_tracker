@@ -9,6 +9,7 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.payload.requ
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.payload.response.JwtResponse;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.service.AuthService;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.service.UserService;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class PublicController {
     private final AuthService authService;
     private final UserService userService;
+    private final EmailService emailService;
 
     @PostMapping("/signup")
     @Operation(summary = "Регистрация пользователя")
@@ -62,5 +64,16 @@ public class PublicController {
     public ResponseEntity<HttpStatus> processPasswordForgot(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         authService.processPasswordForgot(forgotPasswordRequest);
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "emails/register/verify", produces = "text/plan;charset=utf-8")
+    public String verifyEmail(@RequestParam("code") String code) {
+        boolean verified = emailService.verify(code);
+
+        if (verified) {
+            return "Подписка успешно оформлена.";
+        }
+
+        return "Ваша подписка уже оформлена.";
     }
 }

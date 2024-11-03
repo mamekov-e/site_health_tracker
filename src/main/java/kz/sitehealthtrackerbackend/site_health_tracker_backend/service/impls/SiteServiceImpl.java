@@ -85,11 +85,11 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public void addSite(Site site) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndUser_IdIsNot(site.getName(), currentUserId);
+        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndUser_IdIs(site.getName(), currentUserId);
         if (siteNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getName());
         }
-        boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndUser_IdIsNot(site.getUrl(), currentUserId);
+        boolean siteUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndUser_IdIs(site.getUrl(), currentUserId);
         if (siteUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), site.getUrl());
         }
@@ -113,12 +113,12 @@ public class SiteServiceImpl implements SiteService {
         EntityUtils.checkUserAllowed(siteInDb.getUser().getId());
 
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndIdIsNotAndUser_IdIsNot(updatedSite.getName(),
+        boolean siteNameAlreadyExist = siteRepository.existsSitesByNameIgnoreCaseAndIdIsNotAndUser_IdIs(updatedSite.getName(),
                 updatedSite.getId(), currentUserId);
         if (siteNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getName());
         }
-        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndIdIsNotAndUser_IdIsNot(updatedSite.getUrl(),
+        boolean siteUpdatedUrlAlreadyExist = siteRepository.existsSitesByUrlIgnoreCaseAndIdIsNotAndUser_IdIs(updatedSite.getUrl(),
                 updatedSite.getId(), currentUserId);
         if (siteUpdatedUrlAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSite.getUrl());

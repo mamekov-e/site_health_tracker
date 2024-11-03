@@ -35,8 +35,6 @@ public class EmailSenderServiceImpl implements EmailSenderService {
     private String userName;
     @Value("${app.base-url}")
     private String appBaseUrl;
-    @Value("${server.servlet.context-path}")
-    private String contextApi;
 
     @Override
     @Async
@@ -72,7 +70,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
         Map<String, Object> mailModel = new HashMap<>();
         mailModel.put("email", email);
-        mailModel.put("confirmationUrl", String.format("%s%s/v1/public/confirm-email?token=%s", appBaseUrl, contextApi, token.getToken()));
+        mailModel.put("confirmationUrl", String.format("%s/v1/public/confirm-email?token=%s", appBaseUrl, token.getToken()));
         mail.setModel(mailModel);
         send(mail, EEmailTemplate.EMAIL_CONFIRMATION.getName());
     }
@@ -85,7 +83,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         mail.setSubject("Сброс пароля");
 
         Map<String, Object> mailModel = new HashMap<>();
-        mailModel.put("resetUrl", String.format("%s%s/v1/public/reset-password?token=%s", appBaseUrl, contextApi, token.getToken()));
+        mailModel.put("resetUrl", String.format("%s/v1/public/reset-password?token=%s", appBaseUrl, token.getToken()));
         mail.setModel(mailModel);
         send(mail, EEmailTemplate.RESET_PASSWORD.getName());
     }

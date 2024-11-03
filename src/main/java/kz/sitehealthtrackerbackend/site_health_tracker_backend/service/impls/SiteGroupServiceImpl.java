@@ -86,7 +86,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
 
     @Override
     public boolean addSiteGroup(SiteGroup siteGroup) {
-        boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIsAndUser_IdIsNot(siteGroup.getName(), SecurityUtils.getCurrentUserId());
+        boolean siteGroupNameAlreadyExist = siteGroupRepository.existsSiteGroupsByNameIgnoreCaseIsAndUser_IdIs(siteGroup.getName(), SecurityUtils.getCurrentUserId());
         if (siteGroupNameAlreadyExist) {
             throw BadRequestException.entityWithFieldValueAlreadyExist(EntityNames.SITE_GROUP.getName(), siteGroup.getName());
         }
@@ -112,6 +112,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         List<Site> alreadyExistingSites = new ArrayList<>();
         List<Site> siteOfGroupInDb = siteGroup.getSites();
         for (Site siteOfGroup : sites) {
+            siteOfGroup.setUser(new User(SecurityUtils.getCurrentUserId()));
             if (siteOfGroupInDb.contains(siteOfGroup)) {
                 alreadyExistingSites.add(siteOfGroup);
             }
@@ -139,7 +140,7 @@ public class SiteGroupServiceImpl implements SiteGroupService {
         EntityUtils.checkUserAllowed(siteGroupInDb.getUser().getId());
 
         boolean siteUpdatedNameAlreadyExist = siteGroupRepository
-                .existsSiteGroupsByNameIgnoreCaseAndIdIsNotAndUser_IdIsNot(updatedSiteGroup.getName(), updatedSiteGroup.getId(), SecurityUtils.getCurrentUserId());
+                .existsSiteGroupsByNameIgnoreCaseAndIdIsNotAndUser_IdIs(updatedSiteGroup.getName(), updatedSiteGroup.getId(), SecurityUtils.getCurrentUserId());
         if (siteUpdatedNameAlreadyExist) {
             throw BadRequestException
                     .entityWithFieldValueAlreadyExist(EntityNames.SITE.getName(), updatedSiteGroup.getName());

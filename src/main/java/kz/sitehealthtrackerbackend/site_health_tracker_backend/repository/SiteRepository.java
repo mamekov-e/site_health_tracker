@@ -13,13 +13,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SiteRepository extends JpaRepository<Site, Long> {
-    boolean existsSitesByNameIgnoreCaseAndIdIsNotAndUser_IdIsNot(String name, Long id, Long userId);
+    boolean existsSitesByNameIgnoreCaseAndIdIsNotAndUser_IdIs(String name, Long id, Long userId);
 
-    boolean existsSitesByNameIgnoreCaseAndUser_IdIsNot(String name, Long userId);
+    boolean existsSitesByNameIgnoreCaseAndUser_IdIs(String name, Long userId);
 
-    boolean existsSitesByUrlIgnoreCaseAndUser_IdIsNot(String url, Long userId);
+    boolean existsSitesByUrlIgnoreCaseAndUser_IdIs(String url, Long userId);
 
-    boolean existsSitesByUrlIgnoreCaseAndIdIsNotAndUser_IdIsNot(String url, Long id, Long userId);
+    boolean existsSitesByUrlIgnoreCaseAndIdIsNotAndUser_IdIs(String url, Long id, Long userId);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update Site set status = :siteStatus where id = :siteId")

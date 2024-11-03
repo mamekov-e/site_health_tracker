@@ -31,7 +31,7 @@
             </column>
             <column name="site_health_check_interval" type="int"/>
             <column name="user_id" type="bigint">
-                <constraints foreignKeyName="fk_password_reset_token_users"
+                <constraints foreignKeyName="fk_sites_users"
                              referencedTableName="users" referencedTableSchemaName="auth"
                              referencedColumnNames="id" unique="true"/>
             </column>
@@ -41,4 +41,18 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="site2" author="Elnur">
+            <dropUniqueConstraint
+                    schemaName="sht"
+                    tableName="sites"
+                    uniqueColumns="user_id"
+                    constraintName="sites_user_id_key"/>
+    </changeSet>
+    <changeSet id="site3" author="Elnur">
+        <dropUniqueConstraint
+                schemaName="sht"
+                tableName="sites"
+                uniqueColumns="url"
+                constraintName="sites_url_key"/>
+    </changeSet>
 </databaseChangeLog>

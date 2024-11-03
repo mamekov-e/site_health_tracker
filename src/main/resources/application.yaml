@@ -43,13 +43,13 @@ server:
   port: 8080
 
 app:
-  base-url: http://localhost:${server.port}
+  base-url: http://localhost:${server.port}${server.servlet.context-path}
   auth:
     jwt:
       public-key: ===========MYSECRETKEY===========
-      expiration-ms: 3600000
+      expiration-ms: 36000000
       refresh:
-        expiration-ms: 5400000
+        expiration-ms: 54000000
 
 # Ngrok configuration
 ngrok:

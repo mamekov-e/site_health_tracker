@@ -10,11 +10,13 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.security.MyU
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.security.jwt.JwtUtils;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.service.*;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.util.SecurePasswordGenerator;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadCredentialException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,8 +46,13 @@ public class AuthServiceImpl implements AuthService {
         if (!user.isEmailConfirmed())
             throw new BadRequestException("Аккаунт не подтвержден.");
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword()));
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialException("Почта или пароль введены неверно.");
+        }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = jwtUtils.generateAccessToken(authentication);
         String refreshToken = jwtUtils.generateRefreshToken((MyUserDetails) authentication.getPrincipal());
