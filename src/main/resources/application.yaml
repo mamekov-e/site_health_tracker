@@ -56,11 +56,11 @@ ngrok:
   enabled: true
   authToken: 2SjD6hF2kXrIy1k5h883qdKhCzX_3KTNGB5kM2MMgGiF1EpAP
   binary:
-    custom: https://intensely-first-escargot.ngrok-free.app
+    custom: https://intensely-first-escargot.ngrok-free.app/api/v1/public
 
 # Telegram bot settings
 telegram:
   bot:
     username: site_health_tracker_bot
     token: 6174798667:AAG03Kg90WfblzK5TfVURHXbG1koBQo9qYI
-    webHookPath: "https://api.telegram.org/bot6174798667:AAG03Kg90WfblzK5TfVURHXbG1koBQo9qYI/setWebhook?url=https://intensely-first-escargot.ngrok-free.app"
+    webHookPath: "https://api.telegram.org/bot6174798667:AAG03Kg90WfblzK5TfVURHXbG1koBQo9qYI/setWebhook?url=https://intensely-first-escargot.ngrok-free.app/api/v1/public"
