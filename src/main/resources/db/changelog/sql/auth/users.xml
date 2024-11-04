@@ -25,4 +25,17 @@
             <column name="last_modified_date" type="timestamp(6)" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="users2" author="Elnur">
+        <sql>
+            insert into auth.users (email, password, first_name, last_name, middle_name, phone, email_confirmed)
+            values ('site.health.tracker@gmail.com', '$2a$10$VhLEHvrA7EvNPLTAbUxuCuehUNLqb0nWp6gUfsG6GUCX6I79p0Zw2', 'Admin', 'admin', 'admin', '+77088262630', true);
+        </sql>
+        <sql>
+            INSERT INTO auth.user_roles (user_id, role_id)
+            VALUES ((SELECT id FROM auth.users WHERE email = 'site.health.tracker@gmail.com'), 1);
+        </sql>
+    </changeSet>
+
+
 </databaseChangeLog>

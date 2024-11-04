@@ -3,6 +3,8 @@ package kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.service.imp
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.EmailConfirmationToken;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.Role;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.User;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.dto.UserAdapter;
+import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.dto.UserDto;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.model.enums.ERole;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.payload.request.RegisterUserRequest;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.auth.repository.RoleRepository;
@@ -15,6 +17,8 @@ import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.config.exception.NotFoundException;
 import kz.sitehealthtrackerbackend.site_health_tracker_backend.constants.EntityNames;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,6 +59,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser(boolean throwExc) {
         return findByEmail(SecurityUtils.getCurrentUserLogin());
+    }
+
+    @Override
+    public Page<UserDto> getAll(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(UserAdapter::toDto);
+    }
+
+    @Override
+    public Page<UserDto> getAllWithSearchText(Pageable pageable, String searchText) {
+        return userRepository.findAllBySearchText(searchText, pageable)
+                .map(UserAdapter::toDto);
     }
 
     @Override
